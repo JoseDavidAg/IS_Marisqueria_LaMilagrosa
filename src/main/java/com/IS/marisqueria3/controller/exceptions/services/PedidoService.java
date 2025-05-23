@@ -7,10 +7,8 @@ package com.IS.marisqueria3.controller.exceptions.services;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.ItemPedidoPK;
 import com.IS.marisqueria3.model.Pedido;
-import com.IS.marisqueria3.model.Usuario;
 import com.IS.marisqueria3.persistence.ItemPedidoJpaController;
 import com.IS.marisqueria3.persistence.PedidoJpaController;
-import com.IS.marisqueria3.persistence.UsuarioJpaController;
 import java.util.List;
 /**
  *
@@ -19,12 +17,11 @@ import java.util.List;
 public class PedidoService {
     private final PedidoJpaController pedidoJpa;
     private final ItemPedidoJpaController itemPedidoJpa;
-    private final UsuarioJpaController usuarioJpa;
+    
 
     public PedidoService() {
         pedidoJpa = new PedidoJpaController();
         itemPedidoJpa = new ItemPedidoJpaController();
-        usuarioJpa = new UsuarioJpaController();
     }
     
     public List<Pedido> traerTodosPedidos() {
@@ -59,24 +56,5 @@ public class PedidoService {
         }
     }
 
-    // ----------------------
-    // Métodos para Usuario
-    // ----------------------
-
-    public List<Usuario> traerTodosUsuarios() {
-        return usuarioJpa.findUsuarioEntities();
-    }
-
-    public void crearUsuario(Usuario usuario) {
-        usuarioJpa.create(usuario);
-    }
-
-    public void eliminarUsuario(int idUsuario) {
-        try {
-            usuarioJpa.destroy(idUsuario);
-        } catch (Exception e) {
-            System.out.println("Error al eliminar usuario: " + e.getMessage());
-        }
-    }
     
 }

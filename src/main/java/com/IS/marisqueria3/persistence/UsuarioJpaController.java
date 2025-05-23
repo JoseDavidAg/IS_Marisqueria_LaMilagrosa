@@ -13,6 +13,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -124,6 +125,26 @@ public class UsuarioJpaController implements Serializable {
             em.close();
         }
     }
+    
+    public Usuario findUsuarioNombre(String nombre) {
+    EntityManager em = getEntityManager();
+    try {
+        TypedQuery<Usuario> query = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombre", Usuario.class);
+        query.setParameter("nombre", nombre);
+        
+        // Si hay más de uno, solo devuelve el primero
+        List<Usuario> resultados = query.getResultList();
+        if (!resultados.isEmpty()) {
+            return resultados.get(0);
+        } else {
+            return null;
+        }
+    } finally {
+        em.close();
+    }
+}
+
 
     public int getUsuarioCount() {
         EntityManager em = getEntityManager();
