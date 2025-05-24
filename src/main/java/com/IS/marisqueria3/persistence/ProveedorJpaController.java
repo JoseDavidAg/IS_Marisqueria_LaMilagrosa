@@ -30,7 +30,7 @@ public class ProveedorJpaController implements Serializable {
         this.emf = emf;
     }
     public ProveedorJpaController(){
-        Persistence.createEntityManagerFactory("MarisqueriaUP");
+        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
     }
     private EntityManagerFactory emf = null;
 

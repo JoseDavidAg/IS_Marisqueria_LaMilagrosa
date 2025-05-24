@@ -4,6 +4,7 @@
  */
 package com.IS.marisqueria3.controller.exceptions.services;
 
+import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.ItemPedidoPK;
 import com.IS.marisqueria3.model.Pedido;
@@ -55,6 +56,16 @@ public class PedidoService {
             System.out.println("Error al eliminar item de pedido: " + e.getMessage());
         }
     }
+
+    public List<Pedido> traerTodosPedidos(String pendiente) {
+        return pedidoJpa.findPedidoEntities(pendiente);
+    }
+
+    public void actualizarPedido(Pedido pedido) throws NonexistentEntityException, Exception {
+        pedidoJpa.edit(pedido);
+    }
+    
+    
 
     
 }

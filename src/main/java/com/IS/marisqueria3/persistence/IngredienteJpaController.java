@@ -30,7 +30,7 @@ public class IngredienteJpaController implements Serializable {
         this.emf = emf;
     }
     public IngredienteJpaController(){
-        Persistence.createEntityManagerFactory("MarisqueriaUP");
+        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
     }
     private EntityManagerFactory emf = null;
 

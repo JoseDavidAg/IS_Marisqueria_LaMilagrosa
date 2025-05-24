@@ -31,7 +31,7 @@ public class CategoriaCartaJpaController implements Serializable {
     private EntityManagerFactory emf = null;
     
     public CategoriaCartaJpaController(){
-        Persistence.createEntityManagerFactory("MarisqueriaUP");
+        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
     }
     public EntityManager getEntityManager() {
         return emf.createEntityManager();

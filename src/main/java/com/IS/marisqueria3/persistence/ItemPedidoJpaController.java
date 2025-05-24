@@ -30,7 +30,7 @@ public class ItemPedidoJpaController implements Serializable {
         this.emf = emf;
     }
     public ItemPedidoJpaController(){
-        Persistence.createEntityManagerFactory("MarisqueriaUP");
+        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
     }
     private EntityManagerFactory emf = null;
 

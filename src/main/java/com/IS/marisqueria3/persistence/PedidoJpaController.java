@@ -20,6 +20,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 /**
  *
@@ -31,7 +32,7 @@ public class PedidoJpaController implements Serializable {
         this.emf = emf;
     }
     public PedidoJpaController(){
-        Persistence.createEntityManagerFactory("MarisqueriaUP");
+        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
     }
     private EntityManagerFactory emf = null;
 
@@ -273,6 +274,22 @@ public class PedidoJpaController implements Serializable {
         } finally {
             em.close();
         }
+    }
+
+    public List<Pedido> findPedidoEntities(String pendiente) {
+        EntityManager em = getEntityManager();
+    try {
+        TypedQuery<Pedido> query = em.createQuery(
+                //select * from pedido where estado!="pendiente";
+            "SELECT u FROM Pedido u WHERE u.estado != :tipoPedido", Pedido.class);
+        query.setParameter("tipoPedido", pendiente);
+        
+        // Si hay más de uno, solo devuelve el primero
+        List<Pedido> resultados = query.getResultList();
+        return resultados;
+    } finally {
+        em.close();
+    }
     }
     
 }

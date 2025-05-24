@@ -31,7 +31,7 @@ public class ProductoJpaController implements Serializable {
         this.emf = emf;
     }
     public ProductoJpaController(){
-        Persistence.createEntityManagerFactory("MarisqueriaUP");
+        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
     }
     private EntityManagerFactory emf = null;
 
