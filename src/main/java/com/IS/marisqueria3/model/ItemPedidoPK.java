@@ -17,25 +17,17 @@ import javax.persistence.Embeddable;
 public class ItemPedidoPK implements Serializable {
 
     @Basic(optional = false)
-    @Column(name = "id_producto")
-    private int idProducto;
-    @Basic(optional = false)
     @Column(name = "pedido_numero")
     private int pedidoNumero;
+    @Basic(optional = false)
+    @Column(name = "id_producto")
+    private int idProducto;
 
     public ItemPedidoPK() {
     }
 
-    public ItemPedidoPK(int idProducto, int pedidoNumero) {
-        this.idProducto = idProducto;
+    public ItemPedidoPK(int pedidoNumero, int idProducto) {
         this.pedidoNumero = pedidoNumero;
-    }
-
-    public int getIdProducto() {
-        return idProducto;
-    }
-
-    public void setIdProducto(int idProducto) {
         this.idProducto = idProducto;
     }
 
@@ -47,11 +39,19 @@ public class ItemPedidoPK implements Serializable {
         this.pedidoNumero = pedidoNumero;
     }
 
+    public int getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(int idProducto) {
+        this.idProducto = idProducto;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (int) idProducto;
         hash += (int) pedidoNumero;
+        hash += (int) idProducto;
         return hash;
     }
 
@@ -62,10 +62,10 @@ public class ItemPedidoPK implements Serializable {
             return false;
         }
         ItemPedidoPK other = (ItemPedidoPK) object;
-        if (this.idProducto != other.idProducto) {
+        if (this.pedidoNumero != other.pedidoNumero) {
             return false;
         }
-        if (this.pedidoNumero != other.pedidoNumero) {
+        if (this.idProducto != other.idProducto) {
             return false;
         }
         return true;
@@ -73,7 +73,7 @@ public class ItemPedidoPK implements Serializable {
 
     @Override
     public String toString() {
-        return "com.IS.marisqueria3.model.ItemPedidoPK[ idProducto=" + idProducto + ", pedidoNumero=" + pedidoNumero + " ]";
+        return "com.IS.marisqueria3.model.ItemPedidoPK[ pedidoNumero=" + pedidoNumero + ", idProducto=" + idProducto + " ]";
     }
     
 }

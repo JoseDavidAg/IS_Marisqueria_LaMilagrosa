@@ -4,7 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -13,6 +12,7 @@ import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Proveedor;
 import com.IS.marisqueria3.model.ItemOrdenCompra;
 import com.IS.marisqueria3.model.OrdenCompra;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -28,8 +28,8 @@ public class OrdenCompraJpaController implements Serializable {
     public OrdenCompraJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public OrdenCompraJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public OrdenCompraJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 

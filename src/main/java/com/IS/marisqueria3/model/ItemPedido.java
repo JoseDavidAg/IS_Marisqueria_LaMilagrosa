@@ -24,9 +24,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "ItemPedido.findAll", query = "SELECT i FROM ItemPedido i"),
-    @NamedQuery(name = "ItemPedido.findByIdProducto", query = "SELECT i FROM ItemPedido i WHERE i.itemPedidoPK.idProducto = :idProducto"),
+    @NamedQuery(name = "ItemPedido.findByCantidad", query = "SELECT i FROM ItemPedido i WHERE i.cantidad = :cantidad"),
     @NamedQuery(name = "ItemPedido.findByPedidoNumero", query = "SELECT i FROM ItemPedido i WHERE i.itemPedidoPK.pedidoNumero = :pedidoNumero"),
-    @NamedQuery(name = "ItemPedido.findByCantidad", query = "SELECT i FROM ItemPedido i WHERE i.cantidad = :cantidad")})
+    @NamedQuery(name = "ItemPedido.findByIdProducto", query = "SELECT i FROM ItemPedido i WHERE i.itemPedidoPK.idProducto = :idProducto"),
+    @NamedQuery(name = "ItemPedido.findByDescripcion", query = "SELECT i FROM ItemPedido i WHERE i.descripcion = :descripcion")})
 public class ItemPedido implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,6 +35,8 @@ public class ItemPedido implements Serializable {
     protected ItemPedidoPK itemPedidoPK;
     @Column(name = "cantidad")
     private Integer cantidad;
+    @Column(name = "descripcion")
+    private String descripcion;
     @JoinColumn(name = "pedido_numero", referencedColumnName = "numero_pedido", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private Pedido pedido;
@@ -48,8 +51,8 @@ public class ItemPedido implements Serializable {
         this.itemPedidoPK = itemPedidoPK;
     }
 
-    public ItemPedido(int idProducto, int pedidoNumero) {
-        this.itemPedidoPK = new ItemPedidoPK(idProducto, pedidoNumero);
+    public ItemPedido(int pedidoNumero, int idProducto) {
+        this.itemPedidoPK = new ItemPedidoPK(pedidoNumero, idProducto);
     }
 
     public ItemPedidoPK getItemPedidoPK() {
@@ -66,6 +69,14 @@ public class ItemPedido implements Serializable {
 
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     public Pedido getPedido() {

@@ -10,7 +10,7 @@ import com.IS.marisqueria3.model.Proveedor;
 import com.IS.marisqueria3.persistence.ItemOrdenCompraJpaController;
 import com.IS.marisqueria3.persistence.OrdenCompraJpaController;
 import com.IS.marisqueria3.persistence.ProveedorJpaController;
-import java.util.List;
+import java.util.List; 
 /**
  *
  * @author ambro

@@ -4,8 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.IllegalOrphanException;
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -13,7 +11,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.model.Ticket;
-import java.util.ArrayList;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -28,31 +26,16 @@ public class TicketJpaController implements Serializable {
     public TicketJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public TicketJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public TicketJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
-    
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
-    public void create(Ticket ticket) throws IllegalOrphanException {
-        List<String> illegalOrphanMessages = null;
-        Pedido pedidoNumeroOrphanCheck = ticket.getPedidoNumero();
-        if (pedidoNumeroOrphanCheck != null) {
-            Ticket oldTicketOfPedidoNumero = pedidoNumeroOrphanCheck.getTicket();
-            if (oldTicketOfPedidoNumero != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("The Pedido " + pedidoNumeroOrphanCheck + " already has an item of type Ticket whose pedidoNumero column cannot be null. Please make another selection for the pedidoNumero field.");
-            }
-        }
-        if (illegalOrphanMessages != null) {
-            throw new IllegalOrphanException(illegalOrphanMessages);
-        }
+    public void create(Ticket ticket) {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -64,7 +47,7 @@ public class TicketJpaController implements Serializable {
             }
             em.persist(ticket);
             if (pedidoNumero != null) {
-                pedidoNumero.setTicket(ticket);
+                pedidoNumero.getTicketList().add(ticket);
                 pedidoNumero = em.merge(pedidoNumero);
             }
             em.getTransaction().commit();
@@ -75,7 +58,7 @@ public class TicketJpaController implements Serializable {
         }
     }
 
-    public void edit(Ticket ticket) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Ticket ticket) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -83,30 +66,17 @@ public class TicketJpaController implements Serializable {
             Ticket persistentTicket = em.find(Ticket.class, ticket.getNumeroTicket());
             Pedido pedidoNumeroOld = persistentTicket.getPedidoNumero();
             Pedido pedidoNumeroNew = ticket.getPedidoNumero();
-            List<String> illegalOrphanMessages = null;
-            if (pedidoNumeroNew != null && !pedidoNumeroNew.equals(pedidoNumeroOld)) {
-                Ticket oldTicketOfPedidoNumero = pedidoNumeroNew.getTicket();
-                if (oldTicketOfPedidoNumero != null) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("The Pedido " + pedidoNumeroNew + " already has an item of type Ticket whose pedidoNumero column cannot be null. Please make another selection for the pedidoNumero field.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             if (pedidoNumeroNew != null) {
                 pedidoNumeroNew = em.getReference(pedidoNumeroNew.getClass(), pedidoNumeroNew.getNumeroPedido());
                 ticket.setPedidoNumero(pedidoNumeroNew);
             }
             ticket = em.merge(ticket);
             if (pedidoNumeroOld != null && !pedidoNumeroOld.equals(pedidoNumeroNew)) {
-                pedidoNumeroOld.setTicket(null);
+                pedidoNumeroOld.getTicketList().remove(ticket);
                 pedidoNumeroOld = em.merge(pedidoNumeroOld);
             }
             if (pedidoNumeroNew != null && !pedidoNumeroNew.equals(pedidoNumeroOld)) {
-                pedidoNumeroNew.setTicket(ticket);
+                pedidoNumeroNew.getTicketList().add(ticket);
                 pedidoNumeroNew = em.merge(pedidoNumeroNew);
             }
             em.getTransaction().commit();
@@ -140,7 +110,7 @@ public class TicketJpaController implements Serializable {
             }
             Pedido pedidoNumero = ticket.getPedidoNumero();
             if (pedidoNumero != null) {
-                pedidoNumero.setTicket(null);
+                pedidoNumero.getTicketList().remove(ticket);
                 pedidoNumero = em.merge(pedidoNumero);
             }
             em.remove(ticket);

@@ -4,7 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -12,6 +11,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Cliente;
 import com.IS.marisqueria3.model.Mesa;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -26,8 +26,8 @@ public class MesaJpaController implements Serializable {
     public MesaJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public MesaJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public MesaJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 

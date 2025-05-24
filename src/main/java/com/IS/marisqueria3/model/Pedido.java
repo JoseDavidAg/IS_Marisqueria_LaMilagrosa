@@ -19,7 +19,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,11 +35,11 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Pedido.findAll", query = "SELECT p FROM Pedido p"),
     @NamedQuery(name = "Pedido.findByNumeroPedido", query = "SELECT p FROM Pedido p WHERE p.numeroPedido = :numeroPedido"),
-    @NamedQuery(name = "Pedido.findByFechaGeneracion", query = "SELECT p FROM Pedido p WHERE p.fechaGeneracion = :fechaGeneracion"),
-    @NamedQuery(name = "Pedido.findByFechaEntrega", query = "SELECT p FROM Pedido p WHERE p.fechaEntrega = :fechaEntrega"),
-    @NamedQuery(name = "Pedido.findByTipoPedido", query = "SELECT p FROM Pedido p WHERE p.tipoPedido = :tipoPedido"),
     @NamedQuery(name = "Pedido.findByEsUrgente", query = "SELECT p FROM Pedido p WHERE p.esUrgente = :esUrgente"),
-    @NamedQuery(name = "Pedido.findByEstado", query = "SELECT p FROM Pedido p WHERE p.estado = :estado")})
+    @NamedQuery(name = "Pedido.findByEstado", query = "SELECT p FROM Pedido p WHERE p.estado = :estado"),
+    @NamedQuery(name = "Pedido.findByFechaEntrega", query = "SELECT p FROM Pedido p WHERE p.fechaEntrega = :fechaEntrega"),
+    @NamedQuery(name = "Pedido.findByFechaGeneracion", query = "SELECT p FROM Pedido p WHERE p.fechaGeneracion = :fechaGeneracion"),
+    @NamedQuery(name = "Pedido.findByTipoPedido", query = "SELECT p FROM Pedido p WHERE p.tipoPedido = :tipoPedido")})
 public class Pedido implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,24 +48,24 @@ public class Pedido implements Serializable {
     @Basic(optional = false)
     @Column(name = "numero_pedido")
     private Integer numeroPedido;
-    @Column(name = "fecha_generacion")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaGeneracion;
-    @Column(name = "fecha_entrega")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaEntrega;
-    @Column(name = "tipo_pedido")
-    private String tipoPedido;
     @Column(name = "es_urgente")
     private Boolean esUrgente;
     @Column(name = "estado")
     private String estado;
+    @Column(name = "fecha_entrega")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaEntrega;
+    @Column(name = "fecha_generacion")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaGeneracion;
+    @Column(name = "tipo_pedido")
+    private String tipoPedido;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido")
     private List<ItemPedido> itemPedidoList;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "pedidoNumero")
-    private Ticket ticket;
+    @OneToMany(mappedBy = "pedidoNumero")
+    private List<Ticket> ticketList;
     @JoinColumn(name = "cliente_id", referencedColumnName = "id_cliente")
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Cliente clienteId;
 
     public Pedido() {
@@ -82,30 +81,6 @@ public class Pedido implements Serializable {
 
     public void setNumeroPedido(Integer numeroPedido) {
         this.numeroPedido = numeroPedido;
-    }
-
-    public Date getFechaGeneracion() {
-        return fechaGeneracion;
-    }
-
-    public void setFechaGeneracion(Date fechaGeneracion) {
-        this.fechaGeneracion = fechaGeneracion;
-    }
-
-    public Date getFechaEntrega() {
-        return fechaEntrega;
-    }
-
-    public void setFechaEntrega(Date fechaEntrega) {
-        this.fechaEntrega = fechaEntrega;
-    }
-
-    public String getTipoPedido() {
-        return tipoPedido;
-    }
-
-    public void setTipoPedido(String tipoPedido) {
-        this.tipoPedido = tipoPedido;
     }
 
     public Boolean getEsUrgente() {
@@ -124,6 +99,30 @@ public class Pedido implements Serializable {
         this.estado = estado;
     }
 
+    public Date getFechaEntrega() {
+        return fechaEntrega;
+    }
+
+    public void setFechaEntrega(Date fechaEntrega) {
+        this.fechaEntrega = fechaEntrega;
+    }
+
+    public Date getFechaGeneracion() {
+        return fechaGeneracion;
+    }
+
+    public void setFechaGeneracion(Date fechaGeneracion) {
+        this.fechaGeneracion = fechaGeneracion;
+    }
+
+    public String getTipoPedido() {
+        return tipoPedido;
+    }
+
+    public void setTipoPedido(String tipoPedido) {
+        this.tipoPedido = tipoPedido;
+    }
+
     @XmlTransient
     public List<ItemPedido> getItemPedidoList() {
         return itemPedidoList;
@@ -133,12 +132,13 @@ public class Pedido implements Serializable {
         this.itemPedidoList = itemPedidoList;
     }
 
-    public Ticket getTicket() {
-        return ticket;
+    @XmlTransient
+    public List<Ticket> getTicketList() {
+        return ticketList;
     }
 
-    public void setTicket(Ticket ticket) {
-        this.ticket = ticket;
+    public void setTicketList(List<Ticket> ticketList) {
+        this.ticketList = ticketList;
     }
 
     public Cliente getClienteId() {

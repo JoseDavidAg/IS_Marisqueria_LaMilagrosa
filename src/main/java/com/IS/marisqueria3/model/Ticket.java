@@ -5,7 +5,7 @@
 package com.IS.marisqueria3.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -14,9 +14,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -33,10 +33,10 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Ticket.findAll", query = "SELECT t FROM Ticket t"),
     @NamedQuery(name = "Ticket.findByNumeroTicket", query = "SELECT t FROM Ticket t WHERE t.numeroTicket = :numeroTicket"),
     @NamedQuery(name = "Ticket.findByFechaGeneracion", query = "SELECT t FROM Ticket t WHERE t.fechaGeneracion = :fechaGeneracion"),
-    @NamedQuery(name = "Ticket.findByTotalPagar", query = "SELECT t FROM Ticket t WHERE t.totalPagar = :totalPagar"),
+    @NamedQuery(name = "Ticket.findByIva", query = "SELECT t FROM Ticket t WHERE t.iva = :iva"),
     @NamedQuery(name = "Ticket.findByMetodoPago", query = "SELECT t FROM Ticket t WHERE t.metodoPago = :metodoPago"),
     @NamedQuery(name = "Ticket.findBySubtotal", query = "SELECT t FROM Ticket t WHERE t.subtotal = :subtotal"),
-    @NamedQuery(name = "Ticket.findByIva", query = "SELECT t FROM Ticket t WHERE t.iva = :iva")})
+    @NamedQuery(name = "Ticket.findByTotalPagar", query = "SELECT t FROM Ticket t WHERE t.totalPagar = :totalPagar")})
 public class Ticket implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,17 +48,16 @@ public class Ticket implements Serializable {
     @Column(name = "fecha_generacion")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaGeneracion;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-    @Column(name = "total_pagar")
-    private BigDecimal totalPagar;
+    @Column(name = "iva")
+    private BigInteger iva;
     @Column(name = "metodo_pago")
     private String metodoPago;
     @Column(name = "subtotal")
-    private BigDecimal subtotal;
-    @Column(name = "iva")
-    private BigDecimal iva;
+    private BigInteger subtotal;
+    @Column(name = "total_pagar")
+    private BigInteger totalPagar;
     @JoinColumn(name = "pedido_numero", referencedColumnName = "numero_pedido")
-    @OneToOne(optional = false)
+    @ManyToOne
     private Pedido pedidoNumero;
 
     public Ticket() {
@@ -84,12 +83,12 @@ public class Ticket implements Serializable {
         this.fechaGeneracion = fechaGeneracion;
     }
 
-    public BigDecimal getTotalPagar() {
-        return totalPagar;
+    public BigInteger getIva() {
+        return iva;
     }
 
-    public void setTotalPagar(BigDecimal totalPagar) {
-        this.totalPagar = totalPagar;
+    public void setIva(BigInteger iva) {
+        this.iva = iva;
     }
 
     public String getMetodoPago() {
@@ -100,20 +99,20 @@ public class Ticket implements Serializable {
         this.metodoPago = metodoPago;
     }
 
-    public BigDecimal getSubtotal() {
+    public BigInteger getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(BigDecimal subtotal) {
+    public void setSubtotal(BigInteger subtotal) {
         this.subtotal = subtotal;
     }
 
-    public BigDecimal getIva() {
-        return iva;
+    public BigInteger getTotalPagar() {
+        return totalPagar;
     }
 
-    public void setIva(BigDecimal iva) {
-        this.iva = iva;
+    public void setTotalPagar(BigInteger totalPagar) {
+        this.totalPagar = totalPagar;
     }
 
     public Pedido getPedidoNumero() {

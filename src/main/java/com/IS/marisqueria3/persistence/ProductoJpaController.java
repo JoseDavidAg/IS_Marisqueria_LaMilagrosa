@@ -4,19 +4,18 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.IllegalOrphanException;
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import com.IS.marisqueria3.model.CategoriaCarta;
 import com.IS.marisqueria3.model.Ingrediente;
 import java.util.ArrayList;
 import java.util.List;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.Producto;
+import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -30,8 +29,8 @@ public class ProductoJpaController implements Serializable {
     public ProductoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ProductoJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public ProductoJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -50,14 +49,9 @@ public class ProductoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            CategoriaCarta categoriaNombre = producto.getCategoriaNombre();
-            if (categoriaNombre != null) {
-                categoriaNombre = em.getReference(categoriaNombre.getClass(), categoriaNombre.getNombre());
-                producto.setCategoriaNombre(categoriaNombre);
-            }
             List<Ingrediente> attachedIngredienteList = new ArrayList<Ingrediente>();
             for (Ingrediente ingredienteListIngredienteToAttach : producto.getIngredienteList()) {
-                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoProducto());
+                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoIngrediente());
                 attachedIngredienteList.add(ingredienteListIngredienteToAttach);
             }
             producto.setIngredienteList(attachedIngredienteList);
@@ -68,10 +62,6 @@ public class ProductoJpaController implements Serializable {
             }
             producto.setItemPedidoList(attachedItemPedidoList);
             em.persist(producto);
-            if (categoriaNombre != null) {
-                categoriaNombre.getProductoList().add(producto);
-                categoriaNombre = em.merge(categoriaNombre);
-            }
             for (Ingrediente ingredienteListIngrediente : producto.getIngredienteList()) {
                 ingredienteListIngrediente.getProductoList().add(producto);
                 ingredienteListIngrediente = em.merge(ingredienteListIngrediente);
@@ -99,8 +89,6 @@ public class ProductoJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Producto persistentProducto = em.find(Producto.class, producto.getIdPlatillo());
-            CategoriaCarta categoriaNombreOld = persistentProducto.getCategoriaNombre();
-            CategoriaCarta categoriaNombreNew = producto.getCategoriaNombre();
             List<Ingrediente> ingredienteListOld = persistentProducto.getIngredienteList();
             List<Ingrediente> ingredienteListNew = producto.getIngredienteList();
             List<ItemPedido> itemPedidoListOld = persistentProducto.getItemPedidoList();
@@ -117,13 +105,9 @@ public class ProductoJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            if (categoriaNombreNew != null) {
-                categoriaNombreNew = em.getReference(categoriaNombreNew.getClass(), categoriaNombreNew.getNombre());
-                producto.setCategoriaNombre(categoriaNombreNew);
-            }
             List<Ingrediente> attachedIngredienteListNew = new ArrayList<Ingrediente>();
             for (Ingrediente ingredienteListNewIngredienteToAttach : ingredienteListNew) {
-                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoProducto());
+                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoIngrediente());
                 attachedIngredienteListNew.add(ingredienteListNewIngredienteToAttach);
             }
             ingredienteListNew = attachedIngredienteListNew;
@@ -136,14 +120,6 @@ public class ProductoJpaController implements Serializable {
             itemPedidoListNew = attachedItemPedidoListNew;
             producto.setItemPedidoList(itemPedidoListNew);
             producto = em.merge(producto);
-            if (categoriaNombreOld != null && !categoriaNombreOld.equals(categoriaNombreNew)) {
-                categoriaNombreOld.getProductoList().remove(producto);
-                categoriaNombreOld = em.merge(categoriaNombreOld);
-            }
-            if (categoriaNombreNew != null && !categoriaNombreNew.equals(categoriaNombreOld)) {
-                categoriaNombreNew.getProductoList().add(producto);
-                categoriaNombreNew = em.merge(categoriaNombreNew);
-            }
             for (Ingrediente ingredienteListOldIngrediente : ingredienteListOld) {
                 if (!ingredienteListNew.contains(ingredienteListOldIngrediente)) {
                     ingredienteListOldIngrediente.getProductoList().remove(producto);
@@ -206,11 +182,6 @@ public class ProductoJpaController implements Serializable {
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            CategoriaCarta categoriaNombre = producto.getCategoriaNombre();
-            if (categoriaNombre != null) {
-                categoriaNombre.getProductoList().remove(producto);
-                categoriaNombre = em.merge(categoriaNombre);
             }
             List<Ingrediente> ingredienteList = producto.getIngredienteList();
             for (Ingrediente ingredienteListIngrediente : ingredienteList) {

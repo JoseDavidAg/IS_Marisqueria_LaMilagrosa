@@ -4,18 +4,19 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
-import com.IS.marisqueria3.model.Ingrediente;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import com.IS.marisqueria3.model.CategoriaCarta;
+import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.Proveedor;
 import com.IS.marisqueria3.model.Producto;
 import java.util.ArrayList;
 import java.util.List;
 import com.IS.marisqueria3.model.ItemOrdenCompra;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -29,8 +30,8 @@ public class IngredienteJpaController implements Serializable {
     public IngredienteJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public IngredienteJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public IngredienteJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -49,6 +50,11 @@ public class IngredienteJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            CategoriaCarta categoriaId = ingrediente.getCategoriaId();
+            if (categoriaId != null) {
+                categoriaId = em.getReference(categoriaId.getClass(), categoriaId.getIdCategoria());
+                ingrediente.setCategoriaId(categoriaId);
+            }
             Proveedor proveedorId = ingrediente.getProveedorId();
             if (proveedorId != null) {
                 proveedorId = em.getReference(proveedorId.getClass(), proveedorId.getIdProveedor());
@@ -67,6 +73,10 @@ public class IngredienteJpaController implements Serializable {
             }
             ingrediente.setItemOrdenCompraList(attachedItemOrdenCompraList);
             em.persist(ingrediente);
+            if (categoriaId != null) {
+                categoriaId.getIngredienteList().add(ingrediente);
+                categoriaId = em.merge(categoriaId);
+            }
             if (proveedorId != null) {
                 proveedorId.getIngredienteList().add(ingrediente);
                 proveedorId = em.merge(proveedorId);
@@ -97,13 +107,19 @@ public class IngredienteJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Ingrediente persistentIngrediente = em.find(Ingrediente.class, ingrediente.getCodigoProducto());
+            Ingrediente persistentIngrediente = em.find(Ingrediente.class, ingrediente.getCodigoIngrediente());
+            CategoriaCarta categoriaIdOld = persistentIngrediente.getCategoriaId();
+            CategoriaCarta categoriaIdNew = ingrediente.getCategoriaId();
             Proveedor proveedorIdOld = persistentIngrediente.getProveedorId();
             Proveedor proveedorIdNew = ingrediente.getProveedorId();
             List<Producto> productoListOld = persistentIngrediente.getProductoList();
             List<Producto> productoListNew = ingrediente.getProductoList();
             List<ItemOrdenCompra> itemOrdenCompraListOld = persistentIngrediente.getItemOrdenCompraList();
             List<ItemOrdenCompra> itemOrdenCompraListNew = ingrediente.getItemOrdenCompraList();
+            if (categoriaIdNew != null) {
+                categoriaIdNew = em.getReference(categoriaIdNew.getClass(), categoriaIdNew.getIdCategoria());
+                ingrediente.setCategoriaId(categoriaIdNew);
+            }
             if (proveedorIdNew != null) {
                 proveedorIdNew = em.getReference(proveedorIdNew.getClass(), proveedorIdNew.getIdProveedor());
                 ingrediente.setProveedorId(proveedorIdNew);
@@ -123,6 +139,14 @@ public class IngredienteJpaController implements Serializable {
             itemOrdenCompraListNew = attachedItemOrdenCompraListNew;
             ingrediente.setItemOrdenCompraList(itemOrdenCompraListNew);
             ingrediente = em.merge(ingrediente);
+            if (categoriaIdOld != null && !categoriaIdOld.equals(categoriaIdNew)) {
+                categoriaIdOld.getIngredienteList().remove(ingrediente);
+                categoriaIdOld = em.merge(categoriaIdOld);
+            }
+            if (categoriaIdNew != null && !categoriaIdNew.equals(categoriaIdOld)) {
+                categoriaIdNew.getIngredienteList().add(ingrediente);
+                categoriaIdNew = em.merge(categoriaIdNew);
+            }
             if (proveedorIdOld != null && !proveedorIdOld.equals(proveedorIdNew)) {
                 proveedorIdOld.getIngredienteList().remove(ingrediente);
                 proveedorIdOld = em.merge(proveedorIdOld);
@@ -164,7 +188,7 @@ public class IngredienteJpaController implements Serializable {
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                Integer id = ingrediente.getCodigoProducto();
+                Integer id = ingrediente.getCodigoIngrediente();
                 if (findIngrediente(id) == null) {
                     throw new NonexistentEntityException("The ingrediente with id " + id + " no longer exists.");
                 }
@@ -185,9 +209,14 @@ public class IngredienteJpaController implements Serializable {
             Ingrediente ingrediente;
             try {
                 ingrediente = em.getReference(Ingrediente.class, id);
-                ingrediente.getCodigoProducto();
+                ingrediente.getCodigoIngrediente();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The ingrediente with id " + id + " no longer exists.", enfe);
+            }
+            CategoriaCarta categoriaId = ingrediente.getCategoriaId();
+            if (categoriaId != null) {
+                categoriaId.getIngredienteList().remove(ingrediente);
+                categoriaId = em.merge(categoriaId);
             }
             Proveedor proveedorId = ingrediente.getProveedorId();
             if (proveedorId != null) {

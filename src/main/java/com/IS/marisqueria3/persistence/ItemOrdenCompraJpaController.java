@@ -4,7 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -13,6 +12,7 @@ import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.ItemOrdenCompra;
 import com.IS.marisqueria3.model.OrdenCompra;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -27,8 +27,8 @@ public class ItemOrdenCompraJpaController implements Serializable {
     public ItemOrdenCompraJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ItemOrdenCompraJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public ItemOrdenCompraJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -43,7 +43,7 @@ public class ItemOrdenCompraJpaController implements Serializable {
             em.getTransaction().begin();
             Ingrediente ingredienteCodigo = itemOrdenCompra.getIngredienteCodigo();
             if (ingredienteCodigo != null) {
-                ingredienteCodigo = em.getReference(ingredienteCodigo.getClass(), ingredienteCodigo.getCodigoProducto());
+                ingredienteCodigo = em.getReference(ingredienteCodigo.getClass(), ingredienteCodigo.getCodigoIngrediente());
                 itemOrdenCompra.setIngredienteCodigo(ingredienteCodigo);
             }
             OrdenCompra ordenCompraNumero = itemOrdenCompra.getOrdenCompraNumero();
@@ -79,7 +79,7 @@ public class ItemOrdenCompraJpaController implements Serializable {
             OrdenCompra ordenCompraNumeroOld = persistentItemOrdenCompra.getOrdenCompraNumero();
             OrdenCompra ordenCompraNumeroNew = itemOrdenCompra.getOrdenCompraNumero();
             if (ingredienteCodigoNew != null) {
-                ingredienteCodigoNew = em.getReference(ingredienteCodigoNew.getClass(), ingredienteCodigoNew.getCodigoProducto());
+                ingredienteCodigoNew = em.getReference(ingredienteCodigoNew.getClass(), ingredienteCodigoNew.getCodigoIngrediente());
                 itemOrdenCompra.setIngredienteCodigo(ingredienteCodigoNew);
             }
             if (ordenCompraNumeroNew != null) {

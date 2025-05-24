@@ -7,8 +7,11 @@ package com.IS.marisqueria3.model;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -26,25 +29,40 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "CategoriaCarta.findAll", query = "SELECT c FROM CategoriaCarta c"),
-    @NamedQuery(name = "CategoriaCarta.findByNombre", query = "SELECT c FROM CategoriaCarta c WHERE c.nombre = :nombre"),
-    @NamedQuery(name = "CategoriaCarta.findByProductos", query = "SELECT c FROM CategoriaCarta c WHERE c.productos = :productos")})
+    @NamedQuery(name = "CategoriaCarta.findByIdCategoria", query = "SELECT c FROM CategoriaCarta c WHERE c.idCategoria = :idCategoria"),
+    @NamedQuery(name = "CategoriaCarta.findByNombre", query = "SELECT c FROM CategoriaCarta c WHERE c.nombre = :nombre")})
 public class CategoriaCarta implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id_categoria")
+    private Integer idCategoria;
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
-    @Column(name = "productos")
-    private Integer productos;
-    @OneToMany(mappedBy = "categoriaNombre")
-    private List<Producto> productoList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "categoriaId")
+    private List<Ingrediente> ingredienteList;
 
     public CategoriaCarta() {
     }
 
-    public CategoriaCarta(String nombre) {
+    public CategoriaCarta(Integer idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+
+    public CategoriaCarta(Integer idCategoria, String nombre) {
+        this.idCategoria = idCategoria;
         this.nombre = nombre;
+    }
+
+    public Integer getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(Integer idCategoria) {
+        this.idCategoria = idCategoria;
     }
 
     public String getNombre() {
@@ -55,27 +73,19 @@ public class CategoriaCarta implements Serializable {
         this.nombre = nombre;
     }
 
-    public Integer getProductos() {
-        return productos;
-    }
-
-    public void setProductos(Integer productos) {
-        this.productos = productos;
-    }
-
     @XmlTransient
-    public List<Producto> getProductoList() {
-        return productoList;
+    public List<Ingrediente> getIngredienteList() {
+        return ingredienteList;
     }
 
-    public void setProductoList(List<Producto> productoList) {
-        this.productoList = productoList;
+    public void setIngredienteList(List<Ingrediente> ingredienteList) {
+        this.ingredienteList = ingredienteList;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (nombre != null ? nombre.hashCode() : 0);
+        hash += (idCategoria != null ? idCategoria.hashCode() : 0);
         return hash;
     }
 
@@ -86,7 +96,7 @@ public class CategoriaCarta implements Serializable {
             return false;
         }
         CategoriaCarta other = (CategoriaCarta) object;
-        if ((this.nombre == null && other.nombre != null) || (this.nombre != null && !this.nombre.equals(other.nombre))) {
+        if ((this.idCategoria == null && other.idCategoria != null) || (this.idCategoria != null && !this.idCategoria.equals(other.idCategoria))) {
             return false;
         }
         return true;
@@ -94,7 +104,7 @@ public class CategoriaCarta implements Serializable {
 
     @Override
     public String toString() {
-        return "com.IS.marisqueria3.model.CategoriaCarta[ nombre=" + nombre + " ]";
+        return "com.IS.marisqueria3.model.CategoriaCarta[ idCategoria=" + idCategoria + " ]";
     }
     
 }

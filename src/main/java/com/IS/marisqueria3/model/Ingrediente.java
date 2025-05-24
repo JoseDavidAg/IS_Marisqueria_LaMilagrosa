@@ -5,7 +5,7 @@
 package com.IS.marisqueria3.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -35,14 +36,14 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Ingrediente.findAll", query = "SELECT i FROM Ingrediente i"),
-    @NamedQuery(name = "Ingrediente.findByCodigoProducto", query = "SELECT i FROM Ingrediente i WHERE i.codigoProducto = :codigoProducto"),
-    @NamedQuery(name = "Ingrediente.findByNombre", query = "SELECT i FROM Ingrediente i WHERE i.nombre = :nombre"),
+    @NamedQuery(name = "Ingrediente.findByCodigoProducto", query = "SELECT i FROM Ingrediente i WHERE i.codigoIngrediente = :codigoIngrediente"),
     @NamedQuery(name = "Ingrediente.findByDescripcion", query = "SELECT i FROM Ingrediente i WHERE i.descripcion = :descripcion"),
-    @NamedQuery(name = "Ingrediente.findByUnidadMedida", query = "SELECT i FROM Ingrediente i WHERE i.unidadMedida = :unidadMedida"),
     @NamedQuery(name = "Ingrediente.findByFechaCaducidad", query = "SELECT i FROM Ingrediente i WHERE i.fechaCaducidad = :fechaCaducidad"),
+    @NamedQuery(name = "Ingrediente.findByNombre", query = "SELECT i FROM Ingrediente i WHERE i.nombre = :nombre"),
+    @NamedQuery(name = "Ingrediente.findByPrecioUnitario", query = "SELECT i FROM Ingrediente i WHERE i.precioUnitario = :precioUnitario"),
     @NamedQuery(name = "Ingrediente.findByStockDisponible", query = "SELECT i FROM Ingrediente i WHERE i.stockDisponible = :stockDisponible"),
     @NamedQuery(name = "Ingrediente.findByStockMinimo", query = "SELECT i FROM Ingrediente i WHERE i.stockMinimo = :stockMinimo"),
-    @NamedQuery(name = "Ingrediente.findByPrecioUnitario", query = "SELECT i FROM Ingrediente i WHERE i.precioUnitario = :precioUnitario")})
+    @NamedQuery(name = "Ingrediente.findByUnidadMedida", query = "SELECT i FROM Ingrediente i WHERE i.unidadMedida = :unidadMedida")})
 public class Ingrediente implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,28 +51,32 @@ public class Ingrediente implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "codigo_producto")
-    private Integer codigoProducto;
-    @Basic(optional = false)
-    @Column(name = "nombre")
-    private String nombre;
+    private Integer codigoIngrediente;
     @Column(name = "descripcion")
     private String descripcion;
-    @Column(name = "unidad_medida")
-    private String unidadMedida;
     @Column(name = "fecha_caducidad")
     @Temporal(TemporalType.DATE)
     private Date fechaCaducidad;
+    @Column(name = "nombre")
+    private String nombre;
+    @Column(name = "precio_unitario")
+    private BigInteger precioUnitario;
     @Column(name = "stock_disponible")
     private Integer stockDisponible;
     @Column(name = "stock_minimo")
     private Integer stockMinimo;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-    @Column(name = "precio_unitario")
-    private BigDecimal precioUnitario;
-    @ManyToMany(mappedBy = "ingredienteList")
+    @Column(name = "unidad_medida")
+    private String unidadMedida;
+    @JoinTable(name = "producto_ingrediente", joinColumns = {
+        @JoinColumn(name = "ingrediente_codigo", referencedColumnName = "codigo_producto")}, inverseJoinColumns = {
+        @JoinColumn(name = "producto_id", referencedColumnName = "id_platillo")})
+    @ManyToMany
     private List<Producto> productoList;
     @OneToMany(mappedBy = "ingredienteCodigo")
     private List<ItemOrdenCompra> itemOrdenCompraList;
+    @JoinColumn(name = "categoria_id", referencedColumnName = "id_categoria")
+    @ManyToOne(optional = false)
+    private CategoriaCarta categoriaId;
     @JoinColumn(name = "proveedor_id", referencedColumnName = "id_proveedor")
     @ManyToOne
     private Proveedor proveedorId;
@@ -80,28 +85,15 @@ public class Ingrediente implements Serializable {
     }
 
     public Ingrediente(Integer codigoProducto) {
-        this.codigoProducto = codigoProducto;
+        this.codigoIngrediente = codigoProducto;
     }
 
-    public Ingrediente(Integer codigoProducto, String nombre) {
-        this.codigoProducto = codigoProducto;
-        this.nombre = nombre;
+    public Integer getCodigoIngrediente() {
+        return codigoIngrediente;
     }
 
-    public Integer getCodigoProducto() {
-        return codigoProducto;
-    }
-
-    public void setCodigoProducto(Integer codigoProducto) {
-        this.codigoProducto = codigoProducto;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setCodigoIngrediente(Integer codigoIngrediente) {
+        this.codigoIngrediente = codigoIngrediente;
     }
 
     public String getDescripcion() {
@@ -112,20 +104,28 @@ public class Ingrediente implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public String getUnidadMedida() {
-        return unidadMedida;
-    }
-
-    public void setUnidadMedida(String unidadMedida) {
-        this.unidadMedida = unidadMedida;
-    }
-
     public Date getFechaCaducidad() {
         return fechaCaducidad;
     }
 
     public void setFechaCaducidad(Date fechaCaducidad) {
         this.fechaCaducidad = fechaCaducidad;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public BigInteger getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(BigInteger precioUnitario) {
+        this.precioUnitario = precioUnitario;
     }
 
     public Integer getStockDisponible() {
@@ -144,12 +144,12 @@ public class Ingrediente implements Serializable {
         this.stockMinimo = stockMinimo;
     }
 
-    public BigDecimal getPrecioUnitario() {
-        return precioUnitario;
+    public String getUnidadMedida() {
+        return unidadMedida;
     }
 
-    public void setPrecioUnitario(BigDecimal precioUnitario) {
-        this.precioUnitario = precioUnitario;
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = unidadMedida;
     }
 
     @XmlTransient
@@ -170,6 +170,14 @@ public class Ingrediente implements Serializable {
         this.itemOrdenCompraList = itemOrdenCompraList;
     }
 
+    public CategoriaCarta getCategoriaId() {
+        return categoriaId;
+    }
+
+    public void setCategoriaId(CategoriaCarta categoriaId) {
+        this.categoriaId = categoriaId;
+    }
+
     public Proveedor getProveedorId() {
         return proveedorId;
     }
@@ -181,7 +189,7 @@ public class Ingrediente implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (codigoProducto != null ? codigoProducto.hashCode() : 0);
+        hash += (codigoIngrediente != null ? codigoIngrediente.hashCode() : 0);
         return hash;
     }
 
@@ -192,7 +200,7 @@ public class Ingrediente implements Serializable {
             return false;
         }
         Ingrediente other = (Ingrediente) object;
-        if ((this.codigoProducto == null && other.codigoProducto != null) || (this.codigoProducto != null && !this.codigoProducto.equals(other.codigoProducto))) {
+        if ((this.codigoIngrediente == null && other.codigoIngrediente != null) || (this.codigoIngrediente != null && !this.codigoIngrediente.equals(other.codigoIngrediente))) {
             return false;
         }
         return true;
@@ -200,7 +208,7 @@ public class Ingrediente implements Serializable {
 
     @Override
     public String toString() {
-        return "com.IS.marisqueria3.model.Ingrediente[ codigoProducto=" + codigoProducto + " ]";
+        return "com.IS.marisqueria3.model.Ingrediente[ codigoProducto=" + codigoIngrediente + " ]";
     }
     
 }

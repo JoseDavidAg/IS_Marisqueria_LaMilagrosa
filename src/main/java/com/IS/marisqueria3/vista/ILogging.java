@@ -7,6 +7,8 @@ package com.IS.marisqueria3.vista;
 import com.IS.marisqueria3.controller.exceptions.services.UsuarioService;
 import com.IS.marisqueria3.model.Usuario;
 import com.IS.marisqueria3.util.SessionManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -149,7 +151,11 @@ public class ILogging extends javax.swing.JFrame {
             }else if(usuario.getRol().equals("cocina")){
                 // Abrir ventana principal
                 this.dispose(); // Cerrar login
-                new ICocina().setVisible(true);
+                try {
+                    new ICocina().setVisible(true);
+                } catch (Exception ex) {
+                    Logger.getLogger(ILogging.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }else{
                 this.dispose(); // Cerrar login
                 new IAdministrador().setVisible(true);

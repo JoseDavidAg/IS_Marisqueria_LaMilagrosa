@@ -4,19 +4,19 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.IllegalOrphanException;
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import com.IS.marisqueria3.model.Ticket;
 import com.IS.marisqueria3.model.Cliente;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.Pedido;
 import java.util.ArrayList;
 import java.util.List;
+import com.IS.marisqueria3.model.Ticket;
+import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -31,8 +31,8 @@ public class PedidoJpaController implements Serializable {
     public PedidoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public PedidoJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public PedidoJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -44,15 +44,13 @@ public class PedidoJpaController implements Serializable {
         if (pedido.getItemPedidoList() == null) {
             pedido.setItemPedidoList(new ArrayList<ItemPedido>());
         }
+        if (pedido.getTicketList() == null) {
+            pedido.setTicketList(new ArrayList<Ticket>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Ticket ticket = pedido.getTicket();
-            if (ticket != null) {
-                ticket = em.getReference(ticket.getClass(), ticket.getNumeroTicket());
-                pedido.setTicket(ticket);
-            }
             Cliente clienteId = pedido.getClienteId();
             if (clienteId != null) {
                 clienteId = em.getReference(clienteId.getClass(), clienteId.getIdCliente());
@@ -64,16 +62,13 @@ public class PedidoJpaController implements Serializable {
                 attachedItemPedidoList.add(itemPedidoListItemPedidoToAttach);
             }
             pedido.setItemPedidoList(attachedItemPedidoList);
-            em.persist(pedido);
-            if (ticket != null) {
-                Pedido oldPedidoNumeroOfTicket = ticket.getPedidoNumero();
-                if (oldPedidoNumeroOfTicket != null) {
-                    oldPedidoNumeroOfTicket.setTicket(null);
-                    oldPedidoNumeroOfTicket = em.merge(oldPedidoNumeroOfTicket);
-                }
-                ticket.setPedidoNumero(pedido);
-                ticket = em.merge(ticket);
+            List<Ticket> attachedTicketList = new ArrayList<Ticket>();
+            for (Ticket ticketListTicketToAttach : pedido.getTicketList()) {
+                ticketListTicketToAttach = em.getReference(ticketListTicketToAttach.getClass(), ticketListTicketToAttach.getNumeroTicket());
+                attachedTicketList.add(ticketListTicketToAttach);
             }
+            pedido.setTicketList(attachedTicketList);
+            em.persist(pedido);
             if (clienteId != null) {
                 clienteId.getPedidoList().add(pedido);
                 clienteId = em.merge(clienteId);
@@ -85,6 +80,15 @@ public class PedidoJpaController implements Serializable {
                 if (oldPedidoOfItemPedidoListItemPedido != null) {
                     oldPedidoOfItemPedidoListItemPedido.getItemPedidoList().remove(itemPedidoListItemPedido);
                     oldPedidoOfItemPedidoListItemPedido = em.merge(oldPedidoOfItemPedidoListItemPedido);
+                }
+            }
+            for (Ticket ticketListTicket : pedido.getTicketList()) {
+                Pedido oldPedidoNumeroOfTicketListTicket = ticketListTicket.getPedidoNumero();
+                ticketListTicket.setPedidoNumero(pedido);
+                ticketListTicket = em.merge(ticketListTicket);
+                if (oldPedidoNumeroOfTicketListTicket != null) {
+                    oldPedidoNumeroOfTicketListTicket.getTicketList().remove(ticketListTicket);
+                    oldPedidoNumeroOfTicketListTicket = em.merge(oldPedidoNumeroOfTicketListTicket);
                 }
             }
             em.getTransaction().commit();
@@ -101,19 +105,13 @@ public class PedidoJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Pedido persistentPedido = em.find(Pedido.class, pedido.getNumeroPedido());
-            Ticket ticketOld = persistentPedido.getTicket();
-            Ticket ticketNew = pedido.getTicket();
             Cliente clienteIdOld = persistentPedido.getClienteId();
             Cliente clienteIdNew = pedido.getClienteId();
             List<ItemPedido> itemPedidoListOld = persistentPedido.getItemPedidoList();
             List<ItemPedido> itemPedidoListNew = pedido.getItemPedidoList();
+            List<Ticket> ticketListOld = persistentPedido.getTicketList();
+            List<Ticket> ticketListNew = pedido.getTicketList();
             List<String> illegalOrphanMessages = null;
-            if (ticketOld != null && !ticketOld.equals(ticketNew)) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("You must retain Ticket " + ticketOld + " since its pedidoNumero field is not nullable.");
-            }
             for (ItemPedido itemPedidoListOldItemPedido : itemPedidoListOld) {
                 if (!itemPedidoListNew.contains(itemPedidoListOldItemPedido)) {
                     if (illegalOrphanMessages == null) {
@@ -124,10 +122,6 @@ public class PedidoJpaController implements Serializable {
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            if (ticketNew != null) {
-                ticketNew = em.getReference(ticketNew.getClass(), ticketNew.getNumeroTicket());
-                pedido.setTicket(ticketNew);
             }
             if (clienteIdNew != null) {
                 clienteIdNew = em.getReference(clienteIdNew.getClass(), clienteIdNew.getIdCliente());
@@ -140,16 +134,14 @@ public class PedidoJpaController implements Serializable {
             }
             itemPedidoListNew = attachedItemPedidoListNew;
             pedido.setItemPedidoList(itemPedidoListNew);
-            pedido = em.merge(pedido);
-            if (ticketNew != null && !ticketNew.equals(ticketOld)) {
-                Pedido oldPedidoNumeroOfTicket = ticketNew.getPedidoNumero();
-                if (oldPedidoNumeroOfTicket != null) {
-                    oldPedidoNumeroOfTicket.setTicket(null);
-                    oldPedidoNumeroOfTicket = em.merge(oldPedidoNumeroOfTicket);
-                }
-                ticketNew.setPedidoNumero(pedido);
-                ticketNew = em.merge(ticketNew);
+            List<Ticket> attachedTicketListNew = new ArrayList<Ticket>();
+            for (Ticket ticketListNewTicketToAttach : ticketListNew) {
+                ticketListNewTicketToAttach = em.getReference(ticketListNewTicketToAttach.getClass(), ticketListNewTicketToAttach.getNumeroTicket());
+                attachedTicketListNew.add(ticketListNewTicketToAttach);
             }
+            ticketListNew = attachedTicketListNew;
+            pedido.setTicketList(ticketListNew);
+            pedido = em.merge(pedido);
             if (clienteIdOld != null && !clienteIdOld.equals(clienteIdNew)) {
                 clienteIdOld.getPedidoList().remove(pedido);
                 clienteIdOld = em.merge(clienteIdOld);
@@ -166,6 +158,23 @@ public class PedidoJpaController implements Serializable {
                     if (oldPedidoOfItemPedidoListNewItemPedido != null && !oldPedidoOfItemPedidoListNewItemPedido.equals(pedido)) {
                         oldPedidoOfItemPedidoListNewItemPedido.getItemPedidoList().remove(itemPedidoListNewItemPedido);
                         oldPedidoOfItemPedidoListNewItemPedido = em.merge(oldPedidoOfItemPedidoListNewItemPedido);
+                    }
+                }
+            }
+            for (Ticket ticketListOldTicket : ticketListOld) {
+                if (!ticketListNew.contains(ticketListOldTicket)) {
+                    ticketListOldTicket.setPedidoNumero(null);
+                    ticketListOldTicket = em.merge(ticketListOldTicket);
+                }
+            }
+            for (Ticket ticketListNewTicket : ticketListNew) {
+                if (!ticketListOld.contains(ticketListNewTicket)) {
+                    Pedido oldPedidoNumeroOfTicketListNewTicket = ticketListNewTicket.getPedidoNumero();
+                    ticketListNewTicket.setPedidoNumero(pedido);
+                    ticketListNewTicket = em.merge(ticketListNewTicket);
+                    if (oldPedidoNumeroOfTicketListNewTicket != null && !oldPedidoNumeroOfTicketListNewTicket.equals(pedido)) {
+                        oldPedidoNumeroOfTicketListNewTicket.getTicketList().remove(ticketListNewTicket);
+                        oldPedidoNumeroOfTicketListNewTicket = em.merge(oldPedidoNumeroOfTicketListNewTicket);
                     }
                 }
             }
@@ -199,13 +208,6 @@ public class PedidoJpaController implements Serializable {
                 throw new NonexistentEntityException("The pedido with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
-            Ticket ticketOrphanCheck = pedido.getTicket();
-            if (ticketOrphanCheck != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Pedido (" + pedido + ") cannot be destroyed since the Ticket " + ticketOrphanCheck + " in its ticket field has a non-nullable pedidoNumero field.");
-            }
             List<ItemPedido> itemPedidoListOrphanCheck = pedido.getItemPedidoList();
             for (ItemPedido itemPedidoListOrphanCheckItemPedido : itemPedidoListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
@@ -220,6 +222,11 @@ public class PedidoJpaController implements Serializable {
             if (clienteId != null) {
                 clienteId.getPedidoList().remove(pedido);
                 clienteId = em.merge(clienteId);
+            }
+            List<Ticket> ticketList = pedido.getTicketList();
+            for (Ticket ticketListTicket : ticketList) {
+                ticketListTicket.setPedidoNumero(null);
+                ticketListTicket = em.merge(ticketListTicket);
             }
             em.remove(pedido);
             em.getTransaction().commit();
@@ -262,6 +269,24 @@ public class PedidoJpaController implements Serializable {
             em.close();
         }
     }
+    
+    public List<Pedido> findPedidoEntities(String completado) {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<Pedido> query = em.createQuery(
+                "SELECT u FROM Pedido u WHERE u.estado != :completado", Pedido.class);
+            query.setParameter("completado", completado);
+
+            List<Pedido> resultados = query.getResultList();
+            return resultados;
+        } finally {
+            em.close();
+        }
+    } 
+
+
+
+    
 
     public int getPedidoCount() {
         EntityManager em = getEntityManager();
@@ -274,22 +299,6 @@ public class PedidoJpaController implements Serializable {
         } finally {
             em.close();
         }
-    }
-
-    public List<Pedido> findPedidoEntities(String pendiente) {
-        EntityManager em = getEntityManager();
-    try {
-        TypedQuery<Pedido> query = em.createQuery(
-                //select * from pedido where estado!="pendiente";
-            "SELECT u FROM Pedido u WHERE u.estado != :tipoPedido", Pedido.class);
-        query.setParameter("tipoPedido", pendiente);
-        
-        // Si hay más de uno, solo devuelve el primero
-        List<Pedido> resultados = query.getResultList();
-        return resultados;
-    } finally {
-        em.close();
-    }
     }
     
 }

@@ -4,8 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.IllegalOrphanException;
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import com.IS.marisqueria3.model.Cliente;
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -16,6 +14,7 @@ import com.IS.marisqueria3.model.Mesa;
 import java.util.ArrayList;
 import java.util.List;
 import com.IS.marisqueria3.model.Pedido;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -29,11 +28,9 @@ public class ClienteJpaController implements Serializable {
     public ClienteJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    
-    public ClienteJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public ClienteJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
-    
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
@@ -90,7 +87,7 @@ public class ClienteJpaController implements Serializable {
         }
     }
 
-    public void edit(Cliente cliente) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Cliente cliente) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -100,18 +97,6 @@ public class ClienteJpaController implements Serializable {
             List<Mesa> mesaListNew = cliente.getMesaList();
             List<Pedido> pedidoListOld = persistentCliente.getPedidoList();
             List<Pedido> pedidoListNew = cliente.getPedidoList();
-            List<String> illegalOrphanMessages = null;
-            for (Pedido pedidoListOldPedido : pedidoListOld) {
-                if (!pedidoListNew.contains(pedidoListOldPedido)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Pedido " + pedidoListOldPedido + " since its clienteId field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             List<Mesa> attachedMesaListNew = new ArrayList<Mesa>();
             for (Mesa mesaListNewMesaToAttach : mesaListNew) {
                 mesaListNewMesaToAttach = em.getReference(mesaListNewMesaToAttach.getClass(), mesaListNewMesaToAttach.getIdMesa());
@@ -144,6 +129,12 @@ public class ClienteJpaController implements Serializable {
                     }
                 }
             }
+            for (Pedido pedidoListOldPedido : pedidoListOld) {
+                if (!pedidoListNew.contains(pedidoListOldPedido)) {
+                    pedidoListOldPedido.setClienteId(null);
+                    pedidoListOldPedido = em.merge(pedidoListOldPedido);
+                }
+            }
             for (Pedido pedidoListNewPedido : pedidoListNew) {
                 if (!pedidoListOld.contains(pedidoListNewPedido)) {
                     Cliente oldClienteIdOfPedidoListNewPedido = pedidoListNewPedido.getClienteId();
@@ -172,7 +163,7 @@ public class ClienteJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -184,21 +175,15 @@ public class ClienteJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The cliente with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            List<Pedido> pedidoListOrphanCheck = cliente.getPedidoList();
-            for (Pedido pedidoListOrphanCheckPedido : pedidoListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Cliente (" + cliente + ") cannot be destroyed since the Pedido " + pedidoListOrphanCheckPedido + " in its pedidoList field has a non-nullable clienteId field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             List<Mesa> mesaList = cliente.getMesaList();
             for (Mesa mesaListMesa : mesaList) {
                 mesaListMesa.setClienteId(null);
                 mesaListMesa = em.merge(mesaListMesa);
+            }
+            List<Pedido> pedidoList = cliente.getPedidoList();
+            for (Pedido pedidoListPedido : pedidoList) {
+                pedidoListPedido.setClienteId(null);
+                pedidoListPedido = em.merge(pedidoListPedido);
             }
             em.remove(cliente);
             em.getTransaction().commit();

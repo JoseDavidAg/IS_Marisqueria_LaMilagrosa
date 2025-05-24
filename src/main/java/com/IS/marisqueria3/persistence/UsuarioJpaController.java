@@ -4,8 +4,8 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import com.IS.marisqueria3.model.Usuario;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -26,9 +26,11 @@ public class UsuarioJpaController implements Serializable {
     public UsuarioJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public UsuarioJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    
+    public UsuarioJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
+    
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
@@ -125,25 +127,25 @@ public class UsuarioJpaController implements Serializable {
             em.close();
         }
     }
-    
     public Usuario findUsuarioNombre(String nombre) {
-    EntityManager em = getEntityManager();
-    try {
-        TypedQuery<Usuario> query = em.createQuery(
-            "SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombre", Usuario.class);
-        query.setParameter("nombre", nombre);
-        
-        // Si hay más de uno, solo devuelve el primero
-        List<Usuario> resultados = query.getResultList();
-        if (!resultados.isEmpty()) {
-            return resultados.get(0);
-        } else {
-            return null;
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<Usuario> query = em.createQuery(
+                "SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombre", Usuario.class);
+            query.setParameter("nombre", nombre);
+
+            // Si hay más de uno, solo devuelve el primero
+            List<Usuario> resultados = query.getResultList();
+            if (!resultados.isEmpty()) {
+                return resultados.get(0);
+            } else {
+                return null;
+            }
+        } finally {
+            em.close();
         }
-    } finally {
-        em.close();
-    }
-}
+    } 
+
 
 
     public int getUsuarioCount() {

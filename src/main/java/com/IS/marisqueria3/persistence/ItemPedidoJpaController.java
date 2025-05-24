@@ -4,8 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
-import com.IS.marisqueria3.controller.exceptions.PreexistingEntityException;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.ItemPedidoPK;
 import java.io.Serializable;
@@ -15,6 +13,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.model.Producto;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
+import com.IS.marisqueria3.persistence.exceptions.PreexistingEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -29,8 +29,8 @@ public class ItemPedidoJpaController implements Serializable {
     public ItemPedidoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ItemPedidoJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public ItemPedidoJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 

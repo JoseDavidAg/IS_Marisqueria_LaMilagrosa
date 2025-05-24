@@ -4,15 +4,15 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
-import com.IS.marisqueria3.controller.exceptions.PreexistingEntityException;
 import com.IS.marisqueria3.model.CategoriaCarta;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import com.IS.marisqueria3.model.Producto;
+import com.IS.marisqueria3.model.Ingrediente;
+import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -28,45 +28,42 @@ public class CategoriaCartaJpaController implements Serializable {
     public CategoriaCartaJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = null;
     
-    public CategoriaCartaJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    public CategoriaCartaJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
+    
+    private EntityManagerFactory emf = null;
+
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
-    public void create(CategoriaCarta categoriaCarta) throws PreexistingEntityException, Exception {
-        if (categoriaCarta.getProductoList() == null) {
-            categoriaCarta.setProductoList(new ArrayList<Producto>());
+    public void create(CategoriaCarta categoriaCarta) {
+        if (categoriaCarta.getIngredienteList() == null) {
+            categoriaCarta.setIngredienteList(new ArrayList<Ingrediente>());
         }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            List<Producto> attachedProductoList = new ArrayList<Producto>();
-            for (Producto productoListProductoToAttach : categoriaCarta.getProductoList()) {
-                productoListProductoToAttach = em.getReference(productoListProductoToAttach.getClass(), productoListProductoToAttach.getIdPlatillo());
-                attachedProductoList.add(productoListProductoToAttach);
+            List<Ingrediente> attachedIngredienteList = new ArrayList<Ingrediente>();
+            for (Ingrediente ingredienteListIngredienteToAttach : categoriaCarta.getIngredienteList()) {
+                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoIngrediente());
+                attachedIngredienteList.add(ingredienteListIngredienteToAttach);
             }
-            categoriaCarta.setProductoList(attachedProductoList);
+            categoriaCarta.setIngredienteList(attachedIngredienteList);
             em.persist(categoriaCarta);
-            for (Producto productoListProducto : categoriaCarta.getProductoList()) {
-                CategoriaCarta oldCategoriaNombreOfProductoListProducto = productoListProducto.getCategoriaNombre();
-                productoListProducto.setCategoriaNombre(categoriaCarta);
-                productoListProducto = em.merge(productoListProducto);
-                if (oldCategoriaNombreOfProductoListProducto != null) {
-                    oldCategoriaNombreOfProductoListProducto.getProductoList().remove(productoListProducto);
-                    oldCategoriaNombreOfProductoListProducto = em.merge(oldCategoriaNombreOfProductoListProducto);
+            for (Ingrediente ingredienteListIngrediente : categoriaCarta.getIngredienteList()) {
+                CategoriaCarta oldCategoriaIdOfIngredienteListIngrediente = ingredienteListIngrediente.getCategoriaId();
+                ingredienteListIngrediente.setCategoriaId(categoriaCarta);
+                ingredienteListIngrediente = em.merge(ingredienteListIngrediente);
+                if (oldCategoriaIdOfIngredienteListIngrediente != null) {
+                    oldCategoriaIdOfIngredienteListIngrediente.getIngredienteList().remove(ingredienteListIngrediente);
+                    oldCategoriaIdOfIngredienteListIngrediente = em.merge(oldCategoriaIdOfIngredienteListIngrediente);
                 }
             }
             em.getTransaction().commit();
-        } catch (Exception ex) {
-            if (findCategoriaCarta(categoriaCarta.getNombre()) != null) {
-                throw new PreexistingEntityException("CategoriaCarta " + categoriaCarta + " already exists.", ex);
-            }
-            throw ex;
         } finally {
             if (em != null) {
                 em.close();
@@ -74,36 +71,42 @@ public class CategoriaCartaJpaController implements Serializable {
         }
     }
 
-    public void edit(CategoriaCarta categoriaCarta) throws NonexistentEntityException, Exception {
+    public void edit(CategoriaCarta categoriaCarta) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            CategoriaCarta persistentCategoriaCarta = em.find(CategoriaCarta.class, categoriaCarta.getNombre());
-            List<Producto> productoListOld = persistentCategoriaCarta.getProductoList();
-            List<Producto> productoListNew = categoriaCarta.getProductoList();
-            List<Producto> attachedProductoListNew = new ArrayList<Producto>();
-            for (Producto productoListNewProductoToAttach : productoListNew) {
-                productoListNewProductoToAttach = em.getReference(productoListNewProductoToAttach.getClass(), productoListNewProductoToAttach.getIdPlatillo());
-                attachedProductoListNew.add(productoListNewProductoToAttach);
-            }
-            productoListNew = attachedProductoListNew;
-            categoriaCarta.setProductoList(productoListNew);
-            categoriaCarta = em.merge(categoriaCarta);
-            for (Producto productoListOldProducto : productoListOld) {
-                if (!productoListNew.contains(productoListOldProducto)) {
-                    productoListOldProducto.setCategoriaNombre(null);
-                    productoListOldProducto = em.merge(productoListOldProducto);
+            CategoriaCarta persistentCategoriaCarta = em.find(CategoriaCarta.class, categoriaCarta.getIdCategoria());
+            List<Ingrediente> ingredienteListOld = persistentCategoriaCarta.getIngredienteList();
+            List<Ingrediente> ingredienteListNew = categoriaCarta.getIngredienteList();
+            List<String> illegalOrphanMessages = null;
+            for (Ingrediente ingredienteListOldIngrediente : ingredienteListOld) {
+                if (!ingredienteListNew.contains(ingredienteListOldIngrediente)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Ingrediente " + ingredienteListOldIngrediente + " since its categoriaId field is not nullable.");
                 }
             }
-            for (Producto productoListNewProducto : productoListNew) {
-                if (!productoListOld.contains(productoListNewProducto)) {
-                    CategoriaCarta oldCategoriaNombreOfProductoListNewProducto = productoListNewProducto.getCategoriaNombre();
-                    productoListNewProducto.setCategoriaNombre(categoriaCarta);
-                    productoListNewProducto = em.merge(productoListNewProducto);
-                    if (oldCategoriaNombreOfProductoListNewProducto != null && !oldCategoriaNombreOfProductoListNewProducto.equals(categoriaCarta)) {
-                        oldCategoriaNombreOfProductoListNewProducto.getProductoList().remove(productoListNewProducto);
-                        oldCategoriaNombreOfProductoListNewProducto = em.merge(oldCategoriaNombreOfProductoListNewProducto);
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<Ingrediente> attachedIngredienteListNew = new ArrayList<Ingrediente>();
+            for (Ingrediente ingredienteListNewIngredienteToAttach : ingredienteListNew) {
+                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoIngrediente());
+                attachedIngredienteListNew.add(ingredienteListNewIngredienteToAttach);
+            }
+            ingredienteListNew = attachedIngredienteListNew;
+            categoriaCarta.setIngredienteList(ingredienteListNew);
+            categoriaCarta = em.merge(categoriaCarta);
+            for (Ingrediente ingredienteListNewIngrediente : ingredienteListNew) {
+                if (!ingredienteListOld.contains(ingredienteListNewIngrediente)) {
+                    CategoriaCarta oldCategoriaIdOfIngredienteListNewIngrediente = ingredienteListNewIngrediente.getCategoriaId();
+                    ingredienteListNewIngrediente.setCategoriaId(categoriaCarta);
+                    ingredienteListNewIngrediente = em.merge(ingredienteListNewIngrediente);
+                    if (oldCategoriaIdOfIngredienteListNewIngrediente != null && !oldCategoriaIdOfIngredienteListNewIngrediente.equals(categoriaCarta)) {
+                        oldCategoriaIdOfIngredienteListNewIngrediente.getIngredienteList().remove(ingredienteListNewIngrediente);
+                        oldCategoriaIdOfIngredienteListNewIngrediente = em.merge(oldCategoriaIdOfIngredienteListNewIngrediente);
                     }
                 }
             }
@@ -111,7 +114,7 @@ public class CategoriaCartaJpaController implements Serializable {
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                String id = categoriaCarta.getNombre();
+                Integer id = categoriaCarta.getIdCategoria();
                 if (findCategoriaCarta(id) == null) {
                     throw new NonexistentEntityException("The categoriaCarta with id " + id + " no longer exists.");
                 }
@@ -124,7 +127,7 @@ public class CategoriaCartaJpaController implements Serializable {
         }
     }
 
-    public void destroy(String id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -132,14 +135,20 @@ public class CategoriaCartaJpaController implements Serializable {
             CategoriaCarta categoriaCarta;
             try {
                 categoriaCarta = em.getReference(CategoriaCarta.class, id);
-                categoriaCarta.getNombre();
+                categoriaCarta.getIdCategoria();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The categoriaCarta with id " + id + " no longer exists.", enfe);
             }
-            List<Producto> productoList = categoriaCarta.getProductoList();
-            for (Producto productoListProducto : productoList) {
-                productoListProducto.setCategoriaNombre(null);
-                productoListProducto = em.merge(productoListProducto);
+            List<String> illegalOrphanMessages = null;
+            List<Ingrediente> ingredienteListOrphanCheck = categoriaCarta.getIngredienteList();
+            for (Ingrediente ingredienteListOrphanCheckIngrediente : ingredienteListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This CategoriaCarta (" + categoriaCarta + ") cannot be destroyed since the Ingrediente " + ingredienteListOrphanCheckIngrediente + " in its ingredienteList field has a non-nullable categoriaId field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             em.remove(categoriaCarta);
             em.getTransaction().commit();
@@ -174,7 +183,7 @@ public class CategoriaCartaJpaController implements Serializable {
         }
     }
 
-    public CategoriaCarta findCategoriaCarta(String id) {
+    public CategoriaCarta findCategoriaCarta(Integer id) {
         EntityManager em = getEntityManager();
         try {
             return em.find(CategoriaCarta.class, id);

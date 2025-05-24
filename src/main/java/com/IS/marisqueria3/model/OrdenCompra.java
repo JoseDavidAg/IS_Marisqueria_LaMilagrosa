@@ -34,8 +34,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "OrdenCompra.findAll", query = "SELECT o FROM OrdenCompra o"),
     @NamedQuery(name = "OrdenCompra.findByNumeroOrden", query = "SELECT o FROM OrdenCompra o WHERE o.numeroOrden = :numeroOrden"),
-    @NamedQuery(name = "OrdenCompra.findByFechaCreacion", query = "SELECT o FROM OrdenCompra o WHERE o.fechaCreacion = :fechaCreacion"),
-    @NamedQuery(name = "OrdenCompra.findByEstado", query = "SELECT o FROM OrdenCompra o WHERE o.estado = :estado")})
+    @NamedQuery(name = "OrdenCompra.findByEstado", query = "SELECT o FROM OrdenCompra o WHERE o.estado = :estado"),
+    @NamedQuery(name = "OrdenCompra.findByFechaCreacion", query = "SELECT o FROM OrdenCompra o WHERE o.fechaCreacion = :fechaCreacion")})
 public class OrdenCompra implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,13 +44,13 @@ public class OrdenCompra implements Serializable {
     @Basic(optional = false)
     @Column(name = "numero_orden")
     private Integer numeroOrden;
+    @Column(name = "estado")
+    private Character estado;
     @Column(name = "fecha_creacion")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaCreacion;
-    @Column(name = "estado")
-    private Character estado;
     @JoinColumn(name = "proveedor_id", referencedColumnName = "id_proveedor")
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Proveedor proveedorId;
     @OneToMany(mappedBy = "ordenCompraNumero")
     private List<ItemOrdenCompra> itemOrdenCompraList;
@@ -70,20 +70,20 @@ public class OrdenCompra implements Serializable {
         this.numeroOrden = numeroOrden;
     }
 
-    public Date getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(Date fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
     public Character getEstado() {
         return estado;
     }
 
     public void setEstado(Character estado) {
         this.estado = estado;
+    }
+
+    public Date getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(Date fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
     public Proveedor getProveedorId() {

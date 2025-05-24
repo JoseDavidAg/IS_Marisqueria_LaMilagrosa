@@ -7,7 +7,6 @@ package com.IS.marisqueria3.model;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,9 +29,9 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Cliente.findAll", query = "SELECT c FROM Cliente c"),
     @NamedQuery(name = "Cliente.findByIdCliente", query = "SELECT c FROM Cliente c WHERE c.idCliente = :idCliente"),
+    @NamedQuery(name = "Cliente.findByEmail", query = "SELECT c FROM Cliente c WHERE c.email = :email"),
     @NamedQuery(name = "Cliente.findByNombre", query = "SELECT c FROM Cliente c WHERE c.nombre = :nombre"),
-    @NamedQuery(name = "Cliente.findByTelefono", query = "SELECT c FROM Cliente c WHERE c.telefono = :telefono"),
-    @NamedQuery(name = "Cliente.findByEmail", query = "SELECT c FROM Cliente c WHERE c.email = :email")})
+    @NamedQuery(name = "Cliente.findByTelefono", query = "SELECT c FROM Cliente c WHERE c.telefono = :telefono")})
 public class Cliente implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,16 +40,15 @@ public class Cliente implements Serializable {
     @Basic(optional = false)
     @Column(name = "id_cliente")
     private Integer idCliente;
-    @Basic(optional = false)
+    @Column(name = "email")
+    private String email;
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "telefono")
     private String telefono;
-    @Column(name = "email")
-    private String email;
     @OneToMany(mappedBy = "clienteId")
     private List<Mesa> mesaList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "clienteId")
+    @OneToMany(mappedBy = "clienteId")
     private List<Pedido> pedidoList;
 
     public Cliente() {
@@ -60,17 +58,20 @@ public class Cliente implements Serializable {
         this.idCliente = idCliente;
     }
 
-    public Cliente(Integer idCliente, String nombre) {
-        this.idCliente = idCliente;
-        this.nombre = nombre;
-    }
-
     public Integer getIdCliente() {
         return idCliente;
     }
 
     public void setIdCliente(Integer idCliente) {
         this.idCliente = idCliente;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getNombre() {
@@ -87,14 +88,6 @@ public class Cliente implements Serializable {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     @XmlTransient

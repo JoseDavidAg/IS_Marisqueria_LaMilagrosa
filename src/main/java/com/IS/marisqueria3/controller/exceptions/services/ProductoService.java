@@ -66,7 +66,7 @@ public class ProductoService {
         categoriaJpa.create(categoria);
     }
 
-    public void eliminarCategoria(String idCategoria) throws Exception {
+    public void eliminarCategoria(int idCategoria) throws Exception {
         categoriaJpa.destroy(idCategoria);
     }
     

@@ -4,8 +4,6 @@
  */
 package com.IS.marisqueria3.persistence;
 
-import com.IS.marisqueria3.controller.exceptions.IllegalOrphanException;
-import com.IS.marisqueria3.controller.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -16,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.Proveedor;
+import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -29,8 +28,9 @@ public class ProveedorJpaController implements Serializable {
     public ProveedorJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ProveedorJpaController(){
-        emf=Persistence.createEntityManagerFactory("MarisqueriaUP");
+    
+    public ProveedorJpaController() {
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -57,7 +57,7 @@ public class ProveedorJpaController implements Serializable {
             proveedor.setOrdenCompraList(attachedOrdenCompraList);
             List<Ingrediente> attachedIngredienteList = new ArrayList<Ingrediente>();
             for (Ingrediente ingredienteListIngredienteToAttach : proveedor.getIngredienteList()) {
-                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoProducto());
+                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoIngrediente());
                 attachedIngredienteList.add(ingredienteListIngredienteToAttach);
             }
             proveedor.setIngredienteList(attachedIngredienteList);
@@ -88,7 +88,7 @@ public class ProveedorJpaController implements Serializable {
         }
     }
 
-    public void edit(Proveedor proveedor) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Proveedor proveedor) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -98,18 +98,6 @@ public class ProveedorJpaController implements Serializable {
             List<OrdenCompra> ordenCompraListNew = proveedor.getOrdenCompraList();
             List<Ingrediente> ingredienteListOld = persistentProveedor.getIngredienteList();
             List<Ingrediente> ingredienteListNew = proveedor.getIngredienteList();
-            List<String> illegalOrphanMessages = null;
-            for (OrdenCompra ordenCompraListOldOrdenCompra : ordenCompraListOld) {
-                if (!ordenCompraListNew.contains(ordenCompraListOldOrdenCompra)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain OrdenCompra " + ordenCompraListOldOrdenCompra + " since its proveedorId field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             List<OrdenCompra> attachedOrdenCompraListNew = new ArrayList<OrdenCompra>();
             for (OrdenCompra ordenCompraListNewOrdenCompraToAttach : ordenCompraListNew) {
                 ordenCompraListNewOrdenCompraToAttach = em.getReference(ordenCompraListNewOrdenCompraToAttach.getClass(), ordenCompraListNewOrdenCompraToAttach.getNumeroOrden());
@@ -119,12 +107,18 @@ public class ProveedorJpaController implements Serializable {
             proveedor.setOrdenCompraList(ordenCompraListNew);
             List<Ingrediente> attachedIngredienteListNew = new ArrayList<Ingrediente>();
             for (Ingrediente ingredienteListNewIngredienteToAttach : ingredienteListNew) {
-                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoProducto());
+                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoIngrediente());
                 attachedIngredienteListNew.add(ingredienteListNewIngredienteToAttach);
             }
             ingredienteListNew = attachedIngredienteListNew;
             proveedor.setIngredienteList(ingredienteListNew);
             proveedor = em.merge(proveedor);
+            for (OrdenCompra ordenCompraListOldOrdenCompra : ordenCompraListOld) {
+                if (!ordenCompraListNew.contains(ordenCompraListOldOrdenCompra)) {
+                    ordenCompraListOldOrdenCompra.setProveedorId(null);
+                    ordenCompraListOldOrdenCompra = em.merge(ordenCompraListOldOrdenCompra);
+                }
+            }
             for (OrdenCompra ordenCompraListNewOrdenCompra : ordenCompraListNew) {
                 if (!ordenCompraListOld.contains(ordenCompraListNewOrdenCompra)) {
                     Proveedor oldProveedorIdOfOrdenCompraListNewOrdenCompra = ordenCompraListNewOrdenCompra.getProveedorId();
@@ -170,7 +164,7 @@ public class ProveedorJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -182,16 +176,10 @@ public class ProveedorJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The proveedor with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            List<OrdenCompra> ordenCompraListOrphanCheck = proveedor.getOrdenCompraList();
-            for (OrdenCompra ordenCompraListOrphanCheckOrdenCompra : ordenCompraListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Proveedor (" + proveedor + ") cannot be destroyed since the OrdenCompra " + ordenCompraListOrphanCheckOrdenCompra + " in its ordenCompraList field has a non-nullable proveedorId field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
+            List<OrdenCompra> ordenCompraList = proveedor.getOrdenCompraList();
+            for (OrdenCompra ordenCompraListOrdenCompra : ordenCompraList) {
+                ordenCompraListOrdenCompra.setProveedorId(null);
+                ordenCompraListOrdenCompra = em.merge(ordenCompraListOrdenCompra);
             }
             List<Ingrediente> ingredienteList = proveedor.getIngredienteList();
             for (Ingrediente ingredienteListIngrediente : ingredienteList) {
