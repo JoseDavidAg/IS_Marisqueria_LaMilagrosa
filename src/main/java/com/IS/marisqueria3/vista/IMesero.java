@@ -31,7 +31,8 @@ public class IMesero extends javax.swing.JFrame {
         clienteS= new ClienteMesaService();
         pedidoS= new PedidoService();
         productoS= new ProductoService();
-        
+        new javax.swing.Timer(10000, e -> actualizarMenu()).start(); // cada 5 segundos
+
         cargarMenu();
     }
 
@@ -44,6 +45,17 @@ public class IMesero extends javax.swing.JFrame {
         menuPanel.add(panelMenu);
         
     }
+    
+    public void actualizarMenu() {
+    if (panelMenu.iniciarTimerActualizacion()) {
+        // Actualizar solo las tarjetas existentes, no reconstruir todo el panel
+        productos = productoS.listarProductos();
+        panelMenu.actualizarTarjetas(productos);
+        menuPanel.revalidate();
+        menuPanel.repaint();
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

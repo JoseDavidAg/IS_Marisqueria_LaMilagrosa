@@ -24,11 +24,13 @@ import java.util.List;
 public class PedidoService {
     private final PedidoJpaController pedidoJpa;
     private final ItemPedidoJpaController itemPedidoJpa;
+    ProductoIngredienteJpaController proIngredienteJpa;
     
 
     public PedidoService() {
         pedidoJpa = new PedidoJpaController();
         itemPedidoJpa = new ItemPedidoJpaController();
+        proIngredienteJpa = new ProductoIngredienteJpaController();
     }
     
     public List<Pedido> traerTodosPedidos() {
@@ -83,29 +85,41 @@ public class PedidoService {
         sb.append(i.getNombre())
           .append(": ")
           .append(i.getDescripcion() != null ? i.getDescripcion() : "Sin descripción")
-          .append(i.getDescripcion() != null ? i.getDescripcion() : "Sin descripción")
           .append("\n");
     }
     return sb.toString();
     }
-
+    /*
     public boolean productoDisponible(Integer idProducto) {
-        ProductoIngredienteJpaController proIngredienteJpa = new ProductoIngredienteJpaController();
-    // Obtener la lista de ProductoIngrediente directamente del platillo
-    List<ProductoIngrediente> ingredientes = proIngredienteJpa.findByProductoId(idProducto);
-    for (ProductoIngrediente pi : ingredientes) {
-        Ingrediente i = pi.getIngrediente();
-        Integer cantidadNecesaria = pi.getCantidad();
+        
+        // Obtener la lista de ProductoIngrediente directamente del platillo
+        List<ProductoIngrediente> ingredientes = proIngredienteJpa.findByProductoId(idProducto);
+        for (ProductoIngrediente pi : ingredientes) {
+            Ingrediente i = pi.getIngrediente();
+            Integer cantidadNecesaria = pi.getCantidad();
 
-        if (cantidadNecesaria == null || i == null || i.getStockDisponible() == null) {
-            return false; // Información incompleta
+            if (cantidadNecesaria == null || i == null || i.getStockDisponible() == null) {
+                return false; // Información incompleta
+            }
+
+            if ((i.getStockDisponible() - cantidadNecesaria) < 0) {
+                return false;
+            }
         }
 
-        if ((i.getStockDisponible() - cantidadNecesaria) < 0) {
+        return true;
+    }*/
+    
+    public boolean productoDisponible(Integer idProducto) {
+    // Usar una consulta optimizada con JOIN para evitar múltiples SELECTs
+    List<Object[]> resultados = proIngredienteJpa.findStockByProductoId(idProducto);
+    for (Object[] resultado : resultados) {
+        Integer stockDisponible = (Integer) resultado[0];
+        Integer cantidadNecesaria = (Integer) resultado[1];
+        if (stockDisponible == null || cantidadNecesaria == null || stockDisponible < cantidadNecesaria) {
             return false;
         }
     }
-
     return true;
 }
 
