@@ -9,11 +9,12 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import com.IS.marisqueria3.model.Ingrediente;
-import java.util.ArrayList;
-import java.util.List;
+import com.IS.marisqueria3.model.CategoriaCarta;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.Producto;
+import java.util.ArrayList;
+import java.util.List;
+import com.IS.marisqueria3.model.ProductoIngrediente;
 import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
@@ -29,7 +30,7 @@ public class ProductoJpaController implements Serializable {
     public ProductoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ProductoJpaController() {
+    public ProductoJpaController(){
         emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
@@ -39,32 +40,37 @@ public class ProductoJpaController implements Serializable {
     }
 
     public void create(Producto producto) {
-        if (producto.getIngredienteList() == null) {
-            producto.setIngredienteList(new ArrayList<Ingrediente>());
-        }
         if (producto.getItemPedidoList() == null) {
             producto.setItemPedidoList(new ArrayList<ItemPedido>());
+        }
+        if (producto.getProductoIngredienteList() == null) {
+            producto.setProductoIngredienteList(new ArrayList<ProductoIngrediente>());
         }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            List<Ingrediente> attachedIngredienteList = new ArrayList<Ingrediente>();
-            for (Ingrediente ingredienteListIngredienteToAttach : producto.getIngredienteList()) {
-                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoIngrediente());
-                attachedIngredienteList.add(ingredienteListIngredienteToAttach);
+            CategoriaCarta categoriaId = producto.getCategoriaId();
+            if (categoriaId != null) {
+                categoriaId = em.getReference(categoriaId.getClass(), categoriaId.getIdCategoria());
+                producto.setCategoriaId(categoriaId);
             }
-            producto.setIngredienteList(attachedIngredienteList);
             List<ItemPedido> attachedItemPedidoList = new ArrayList<ItemPedido>();
             for (ItemPedido itemPedidoListItemPedidoToAttach : producto.getItemPedidoList()) {
                 itemPedidoListItemPedidoToAttach = em.getReference(itemPedidoListItemPedidoToAttach.getClass(), itemPedidoListItemPedidoToAttach.getItemPedidoPK());
                 attachedItemPedidoList.add(itemPedidoListItemPedidoToAttach);
             }
             producto.setItemPedidoList(attachedItemPedidoList);
+            List<ProductoIngrediente> attachedProductoIngredienteList = new ArrayList<ProductoIngrediente>();
+            for (ProductoIngrediente productoIngredienteListProductoIngredienteToAttach : producto.getProductoIngredienteList()) {
+                productoIngredienteListProductoIngredienteToAttach = em.getReference(productoIngredienteListProductoIngredienteToAttach.getClass(), productoIngredienteListProductoIngredienteToAttach.getProductoIngredientePK());
+                attachedProductoIngredienteList.add(productoIngredienteListProductoIngredienteToAttach);
+            }
+            producto.setProductoIngredienteList(attachedProductoIngredienteList);
             em.persist(producto);
-            for (Ingrediente ingredienteListIngrediente : producto.getIngredienteList()) {
-                ingredienteListIngrediente.getProductoList().add(producto);
-                ingredienteListIngrediente = em.merge(ingredienteListIngrediente);
+            if (categoriaId != null) {
+                categoriaId.getProductoList().add(producto);
+                categoriaId = em.merge(categoriaId);
             }
             for (ItemPedido itemPedidoListItemPedido : producto.getItemPedidoList()) {
                 Producto oldProductoOfItemPedidoListItemPedido = itemPedidoListItemPedido.getProducto();
@@ -73,6 +79,15 @@ public class ProductoJpaController implements Serializable {
                 if (oldProductoOfItemPedidoListItemPedido != null) {
                     oldProductoOfItemPedidoListItemPedido.getItemPedidoList().remove(itemPedidoListItemPedido);
                     oldProductoOfItemPedidoListItemPedido = em.merge(oldProductoOfItemPedidoListItemPedido);
+                }
+            }
+            for (ProductoIngrediente productoIngredienteListProductoIngrediente : producto.getProductoIngredienteList()) {
+                Producto oldProductoOfProductoIngredienteListProductoIngrediente = productoIngredienteListProductoIngrediente.getProducto();
+                productoIngredienteListProductoIngrediente.setProducto(producto);
+                productoIngredienteListProductoIngrediente = em.merge(productoIngredienteListProductoIngrediente);
+                if (oldProductoOfProductoIngredienteListProductoIngrediente != null) {
+                    oldProductoOfProductoIngredienteListProductoIngrediente.getProductoIngredienteList().remove(productoIngredienteListProductoIngrediente);
+                    oldProductoOfProductoIngredienteListProductoIngrediente = em.merge(oldProductoOfProductoIngredienteListProductoIngrediente);
                 }
             }
             em.getTransaction().commit();
@@ -89,10 +104,12 @@ public class ProductoJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Producto persistentProducto = em.find(Producto.class, producto.getIdPlatillo());
-            List<Ingrediente> ingredienteListOld = persistentProducto.getIngredienteList();
-            List<Ingrediente> ingredienteListNew = producto.getIngredienteList();
+            CategoriaCarta categoriaIdOld = persistentProducto.getCategoriaId();
+            CategoriaCarta categoriaIdNew = producto.getCategoriaId();
             List<ItemPedido> itemPedidoListOld = persistentProducto.getItemPedidoList();
             List<ItemPedido> itemPedidoListNew = producto.getItemPedidoList();
+            List<ProductoIngrediente> productoIngredienteListOld = persistentProducto.getProductoIngredienteList();
+            List<ProductoIngrediente> productoIngredienteListNew = producto.getProductoIngredienteList();
             List<String> illegalOrphanMessages = null;
             for (ItemPedido itemPedidoListOldItemPedido : itemPedidoListOld) {
                 if (!itemPedidoListNew.contains(itemPedidoListOldItemPedido)) {
@@ -102,16 +119,21 @@ public class ProductoJpaController implements Serializable {
                     illegalOrphanMessages.add("You must retain ItemPedido " + itemPedidoListOldItemPedido + " since its producto field is not nullable.");
                 }
             }
+            for (ProductoIngrediente productoIngredienteListOldProductoIngrediente : productoIngredienteListOld) {
+                if (!productoIngredienteListNew.contains(productoIngredienteListOldProductoIngrediente)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain ProductoIngrediente " + productoIngredienteListOldProductoIngrediente + " since its producto field is not nullable.");
+                }
+            }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            List<Ingrediente> attachedIngredienteListNew = new ArrayList<Ingrediente>();
-            for (Ingrediente ingredienteListNewIngredienteToAttach : ingredienteListNew) {
-                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoIngrediente());
-                attachedIngredienteListNew.add(ingredienteListNewIngredienteToAttach);
+            if (categoriaIdNew != null) {
+                categoriaIdNew = em.getReference(categoriaIdNew.getClass(), categoriaIdNew.getIdCategoria());
+                producto.setCategoriaId(categoriaIdNew);
             }
-            ingredienteListNew = attachedIngredienteListNew;
-            producto.setIngredienteList(ingredienteListNew);
             List<ItemPedido> attachedItemPedidoListNew = new ArrayList<ItemPedido>();
             for (ItemPedido itemPedidoListNewItemPedidoToAttach : itemPedidoListNew) {
                 itemPedidoListNewItemPedidoToAttach = em.getReference(itemPedidoListNewItemPedidoToAttach.getClass(), itemPedidoListNewItemPedidoToAttach.getItemPedidoPK());
@@ -119,18 +141,21 @@ public class ProductoJpaController implements Serializable {
             }
             itemPedidoListNew = attachedItemPedidoListNew;
             producto.setItemPedidoList(itemPedidoListNew);
-            producto = em.merge(producto);
-            for (Ingrediente ingredienteListOldIngrediente : ingredienteListOld) {
-                if (!ingredienteListNew.contains(ingredienteListOldIngrediente)) {
-                    ingredienteListOldIngrediente.getProductoList().remove(producto);
-                    ingredienteListOldIngrediente = em.merge(ingredienteListOldIngrediente);
-                }
+            List<ProductoIngrediente> attachedProductoIngredienteListNew = new ArrayList<ProductoIngrediente>();
+            for (ProductoIngrediente productoIngredienteListNewProductoIngredienteToAttach : productoIngredienteListNew) {
+                productoIngredienteListNewProductoIngredienteToAttach = em.getReference(productoIngredienteListNewProductoIngredienteToAttach.getClass(), productoIngredienteListNewProductoIngredienteToAttach.getProductoIngredientePK());
+                attachedProductoIngredienteListNew.add(productoIngredienteListNewProductoIngredienteToAttach);
             }
-            for (Ingrediente ingredienteListNewIngrediente : ingredienteListNew) {
-                if (!ingredienteListOld.contains(ingredienteListNewIngrediente)) {
-                    ingredienteListNewIngrediente.getProductoList().add(producto);
-                    ingredienteListNewIngrediente = em.merge(ingredienteListNewIngrediente);
-                }
+            productoIngredienteListNew = attachedProductoIngredienteListNew;
+            producto.setProductoIngredienteList(productoIngredienteListNew);
+            producto = em.merge(producto);
+            if (categoriaIdOld != null && !categoriaIdOld.equals(categoriaIdNew)) {
+                categoriaIdOld.getProductoList().remove(producto);
+                categoriaIdOld = em.merge(categoriaIdOld);
+            }
+            if (categoriaIdNew != null && !categoriaIdNew.equals(categoriaIdOld)) {
+                categoriaIdNew.getProductoList().add(producto);
+                categoriaIdNew = em.merge(categoriaIdNew);
             }
             for (ItemPedido itemPedidoListNewItemPedido : itemPedidoListNew) {
                 if (!itemPedidoListOld.contains(itemPedidoListNewItemPedido)) {
@@ -140,6 +165,17 @@ public class ProductoJpaController implements Serializable {
                     if (oldProductoOfItemPedidoListNewItemPedido != null && !oldProductoOfItemPedidoListNewItemPedido.equals(producto)) {
                         oldProductoOfItemPedidoListNewItemPedido.getItemPedidoList().remove(itemPedidoListNewItemPedido);
                         oldProductoOfItemPedidoListNewItemPedido = em.merge(oldProductoOfItemPedidoListNewItemPedido);
+                    }
+                }
+            }
+            for (ProductoIngrediente productoIngredienteListNewProductoIngrediente : productoIngredienteListNew) {
+                if (!productoIngredienteListOld.contains(productoIngredienteListNewProductoIngrediente)) {
+                    Producto oldProductoOfProductoIngredienteListNewProductoIngrediente = productoIngredienteListNewProductoIngrediente.getProducto();
+                    productoIngredienteListNewProductoIngrediente.setProducto(producto);
+                    productoIngredienteListNewProductoIngrediente = em.merge(productoIngredienteListNewProductoIngrediente);
+                    if (oldProductoOfProductoIngredienteListNewProductoIngrediente != null && !oldProductoOfProductoIngredienteListNewProductoIngrediente.equals(producto)) {
+                        oldProductoOfProductoIngredienteListNewProductoIngrediente.getProductoIngredienteList().remove(productoIngredienteListNewProductoIngrediente);
+                        oldProductoOfProductoIngredienteListNewProductoIngrediente = em.merge(oldProductoOfProductoIngredienteListNewProductoIngrediente);
                     }
                 }
             }
@@ -180,13 +216,20 @@ public class ProductoJpaController implements Serializable {
                 }
                 illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the ItemPedido " + itemPedidoListOrphanCheckItemPedido + " in its itemPedidoList field has a non-nullable producto field.");
             }
+            List<ProductoIngrediente> productoIngredienteListOrphanCheck = producto.getProductoIngredienteList();
+            for (ProductoIngrediente productoIngredienteListOrphanCheckProductoIngrediente : productoIngredienteListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the ProductoIngrediente " + productoIngredienteListOrphanCheckProductoIngrediente + " in its productoIngredienteList field has a non-nullable producto field.");
+            }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            List<Ingrediente> ingredienteList = producto.getIngredienteList();
-            for (Ingrediente ingredienteListIngrediente : ingredienteList) {
-                ingredienteListIngrediente.getProductoList().remove(producto);
-                ingredienteListIngrediente = em.merge(ingredienteListIngrediente);
+            CategoriaCarta categoriaId = producto.getCategoriaId();
+            if (categoriaId != null) {
+                categoriaId.getProductoList().remove(producto);
+                categoriaId = em.merge(categoriaId);
             }
             em.remove(producto);
             em.getTransaction().commit();

@@ -5,11 +5,16 @@
 package com.IS.marisqueria3.controller.exceptions.services;
 
 
+import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.ItemPedidoPK;
 import com.IS.marisqueria3.model.Pedido;
+import com.IS.marisqueria3.model.Producto;
+import com.IS.marisqueria3.model.ProductoIngrediente;
+import com.IS.marisqueria3.model.ProductoIngredientePK;
 import com.IS.marisqueria3.persistence.ItemPedidoJpaController;
 import com.IS.marisqueria3.persistence.PedidoJpaController;
+import com.IS.marisqueria3.persistence.ProductoIngredienteJpaController;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.List;
 /**
@@ -65,6 +70,46 @@ public class PedidoService {
     public void actualizarPedido(Pedido pedido) throws NonexistentEntityException, Exception {
         pedidoJpa.edit(pedido);
     }
+
+    public String traerIngredientes(int platilloId) {
+    List<Ingrediente> ingredientes = pedidoJpa.findPedidoIngredientes(platilloId);
+    
+    if (ingredientes == null || ingredientes.isEmpty()) {
+        return "No hay ingredientes registrados para este producto.";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (Ingrediente i : ingredientes) {
+        sb.append(i.getNombre())
+          .append(": ")
+          .append(i.getDescripcion() != null ? i.getDescripcion() : "Sin descripción")
+          .append(i.getDescripcion() != null ? i.getDescripcion() : "Sin descripción")
+          .append("\n");
+    }
+    return sb.toString();
+    }
+
+    public boolean productoDisponible(Integer idProducto) {
+        ProductoIngredienteJpaController proIngredienteJpa = new ProductoIngredienteJpaController();
+    // Obtener la lista de ProductoIngrediente directamente del platillo
+    List<ProductoIngrediente> ingredientes = proIngredienteJpa.findByProductoId(idProducto);
+    for (ProductoIngrediente pi : ingredientes) {
+        Ingrediente i = pi.getIngrediente();
+        Integer cantidadNecesaria = pi.getCantidad();
+
+        if (cantidadNecesaria == null || i == null || i.getStockDisponible() == null) {
+            return false; // Información incompleta
+        }
+
+        if ((i.getStockDisponible() - cantidadNecesaria) < 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
     
     
 

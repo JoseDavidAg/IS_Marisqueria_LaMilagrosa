@@ -5,7 +5,7 @@
 package com.IS.marisqueria3.model;
 
 import java.io.Serializable;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -14,7 +14,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -48,14 +49,18 @@ public class Producto implements Serializable {
     private String descripcion;
     @Column(name = "nombre")
     private String nombre;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "precio_venta")
-    private BigInteger precioVenta;
+    private BigDecimal precioVenta;
     @Column(name = "unidad_medida")
     private String unidadMedida;
-    @ManyToMany(mappedBy = "productoList")
-    private List<Ingrediente> ingredienteList;
+    @JoinColumn(name = "categoria_id", referencedColumnName = "id_categoria")
+    @ManyToOne
+    private CategoriaCarta categoriaId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
     private List<ItemPedido> itemPedidoList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
+    private List<ProductoIngrediente> productoIngredienteList;
 
     public Producto() {
     }
@@ -88,11 +93,11 @@ public class Producto implements Serializable {
         this.nombre = nombre;
     }
 
-    public BigInteger getPrecioVenta() {
+    public BigDecimal getPrecioVenta() {
         return precioVenta;
     }
 
-    public void setPrecioVenta(BigInteger precioVenta) {
+    public void setPrecioVenta(BigDecimal precioVenta) {
         this.precioVenta = precioVenta;
     }
 
@@ -104,13 +109,16 @@ public class Producto implements Serializable {
         this.unidadMedida = unidadMedida;
     }
 
-    @XmlTransient
-    public List<Ingrediente> getIngredienteList() {
-        return ingredienteList;
+    public CategoriaCarta getCategoriaId() {
+        return categoriaId;
     }
 
-    public void setIngredienteList(List<Ingrediente> ingredienteList) {
-        this.ingredienteList = ingredienteList;
+    
+    public String getCategoriaNombre(){
+        return categoriaId.getNombre();
+    }
+    public void setCategoriaId(CategoriaCarta categoriaId) {
+        this.categoriaId = categoriaId;
     }
 
     @XmlTransient
@@ -122,6 +130,16 @@ public class Producto implements Serializable {
         this.itemPedidoList = itemPedidoList;
     }
 
+    @XmlTransient
+    public List<ProductoIngrediente> getProductoIngredienteList() {
+        return productoIngredienteList;
+    }
+
+    public void setProductoIngredienteList(List<ProductoIngrediente> productoIngredienteList) {
+        this.productoIngredienteList = productoIngredienteList;
+    }
+
+    
     @Override
     public int hashCode() {
         int hash = 0;

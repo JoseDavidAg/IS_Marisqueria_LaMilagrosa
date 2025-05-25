@@ -28,8 +28,7 @@ public class ProveedorJpaController implements Serializable {
     public ProveedorJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    
-    public ProveedorJpaController() {
+    public ProveedorJpaController(){
         emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
@@ -57,7 +56,7 @@ public class ProveedorJpaController implements Serializable {
             proveedor.setOrdenCompraList(attachedOrdenCompraList);
             List<Ingrediente> attachedIngredienteList = new ArrayList<Ingrediente>();
             for (Ingrediente ingredienteListIngredienteToAttach : proveedor.getIngredienteList()) {
-                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getCodigoIngrediente());
+                ingredienteListIngredienteToAttach = em.getReference(ingredienteListIngredienteToAttach.getClass(), ingredienteListIngredienteToAttach.getIngredienteId());
                 attachedIngredienteList.add(ingredienteListIngredienteToAttach);
             }
             proveedor.setIngredienteList(attachedIngredienteList);
@@ -107,7 +106,7 @@ public class ProveedorJpaController implements Serializable {
             proveedor.setOrdenCompraList(ordenCompraListNew);
             List<Ingrediente> attachedIngredienteListNew = new ArrayList<Ingrediente>();
             for (Ingrediente ingredienteListNewIngredienteToAttach : ingredienteListNew) {
-                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getCodigoIngrediente());
+                ingredienteListNewIngredienteToAttach = em.getReference(ingredienteListNewIngredienteToAttach.getClass(), ingredienteListNewIngredienteToAttach.getIngredienteId());
                 attachedIngredienteListNew.add(ingredienteListNewIngredienteToAttach);
             }
             ingredienteListNew = attachedIngredienteListNew;

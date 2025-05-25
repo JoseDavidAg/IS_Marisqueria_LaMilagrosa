@@ -14,6 +14,7 @@
     <class>com.IS.marisqueria3.model.Proveedor</class>
     <class>com.IS.marisqueria3.model.Usuario</class>
     <class>com.IS.marisqueria3.model.CategoriaCarta</class>
+    <class>com.IS.marisqueria3.model.ProductoIngrediente</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bd_marisqueria?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
       <property name="javax.persistence.jdbc.user" value="DavidAG"/>
@@ -21,7 +22,7 @@
       <property name="javax.persistence.jdbc.password" value="Da+!R947}5N3a"/>
     </properties>
   </persistence-unit>
-  <persistence-unit name="Marisqueria3TPU" transaction-type="RESOURCE_LOCAL">
+  <persistence-unit name="Marisqueria2TPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bd_marisqueria?zeroDateTimeBehavior=CONVERT_TO_NULL"/>

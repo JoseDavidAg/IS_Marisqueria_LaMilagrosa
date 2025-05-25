@@ -7,7 +7,6 @@ package com.IS.marisqueria3.model;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -42,8 +41,8 @@ public class CategoriaCarta implements Serializable {
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "categoriaId")
-    private List<Ingrediente> ingredienteList;
+    @OneToMany(mappedBy = "categoriaId")
+    private List<Producto> productoList;
 
     public CategoriaCarta() {
     }
@@ -74,12 +73,12 @@ public class CategoriaCarta implements Serializable {
     }
 
     @XmlTransient
-    public List<Ingrediente> getIngredienteList() {
-        return ingredienteList;
+    public List<Producto> getProductoList() {
+        return productoList;
     }
 
-    public void setIngredienteList(List<Ingrediente> ingredienteList) {
-        this.ingredienteList = ingredienteList;
+    public void setProductoList(List<Producto> productoList) {
+        this.productoList = productoList;
     }
 
     @Override

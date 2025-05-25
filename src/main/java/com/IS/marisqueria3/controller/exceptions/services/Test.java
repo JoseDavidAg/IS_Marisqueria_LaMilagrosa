@@ -10,10 +10,9 @@ package com.IS.marisqueria3.controller.exceptions.services;
  */
 public class Test {
     public static void main(String args[]){
-        UsuarioService ss= new UsuarioService();
-    
-        
-        ss.eliminarUsuario(1);
+        PedidoService s = new PedidoService();
+        String ds= s.traerIngredientes(1);
+        System.out.println(ds);
     }
     
     

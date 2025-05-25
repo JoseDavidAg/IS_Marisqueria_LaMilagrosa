@@ -7,8 +7,10 @@ package com.IS.marisqueria3.controller.exceptions.services;
 import com.IS.marisqueria3.model.CategoriaCarta;
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.Producto;
+import com.IS.marisqueria3.model.ProductoIngrediente;
 import com.IS.marisqueria3.persistence.CategoriaCartaJpaController;
 import com.IS.marisqueria3.persistence.IngredienteJpaController;
+import com.IS.marisqueria3.persistence.ProductoIngredienteJpaController;
 import com.IS.marisqueria3.persistence.ProductoJpaController;
 import java.util.List;
 /**
@@ -19,13 +21,13 @@ public class ProductoService {
     private final CategoriaCartaJpaController categoriaJpa;
     private final IngredienteJpaController ingredientesJpa;
     private final ProductoJpaController productoJpa;
-    
+    private final ProductoIngredienteJpaController proIngredienteJpa;
 
     public ProductoService() {
         categoriaJpa = new CategoriaCartaJpaController();
         ingredientesJpa = new IngredienteJpaController();
         productoJpa = new ProductoJpaController();
-       
+        proIngredienteJpa = new ProductoIngredienteJpaController();
     }
     
     // === Métodos para Producto ===
@@ -68,6 +70,10 @@ public class ProductoService {
 
     public void eliminarCategoria(int idCategoria) throws Exception {
         categoriaJpa.destroy(idCategoria);
+    }
+    
+    public List<ProductoIngrediente> listarIngredientesByProducto(int idProducto){
+        return proIngredienteJpa.findByProductoId(idProducto);
     }
     
 }

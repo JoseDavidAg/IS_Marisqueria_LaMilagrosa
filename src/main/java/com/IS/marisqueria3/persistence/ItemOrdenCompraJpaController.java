@@ -27,7 +27,7 @@ public class ItemOrdenCompraJpaController implements Serializable {
     public ItemOrdenCompraJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ItemOrdenCompraJpaController() {
+    public ItemOrdenCompraJpaController(){
         emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
@@ -43,7 +43,7 @@ public class ItemOrdenCompraJpaController implements Serializable {
             em.getTransaction().begin();
             Ingrediente ingredienteCodigo = itemOrdenCompra.getIngredienteCodigo();
             if (ingredienteCodigo != null) {
-                ingredienteCodigo = em.getReference(ingredienteCodigo.getClass(), ingredienteCodigo.getCodigoIngrediente());
+                ingredienteCodigo = em.getReference(ingredienteCodigo.getClass(), ingredienteCodigo.getIngredienteId());
                 itemOrdenCompra.setIngredienteCodigo(ingredienteCodigo);
             }
             OrdenCompra ordenCompraNumero = itemOrdenCompra.getOrdenCompraNumero();
@@ -79,7 +79,7 @@ public class ItemOrdenCompraJpaController implements Serializable {
             OrdenCompra ordenCompraNumeroOld = persistentItemOrdenCompra.getOrdenCompraNumero();
             OrdenCompra ordenCompraNumeroNew = itemOrdenCompra.getOrdenCompraNumero();
             if (ingredienteCodigoNew != null) {
-                ingredienteCodigoNew = em.getReference(ingredienteCodigoNew.getClass(), ingredienteCodigoNew.getCodigoIngrediente());
+                ingredienteCodigoNew = em.getReference(ingredienteCodigoNew.getClass(), ingredienteCodigoNew.getIngredienteId());
                 itemOrdenCompra.setIngredienteCodigo(ingredienteCodigoNew);
             }
             if (ordenCompraNumeroNew != null) {

@@ -26,11 +26,9 @@ public class UsuarioJpaController implements Serializable {
     public UsuarioJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    
-    public UsuarioJpaController() {
+    public UsuarioJpaController(){
         emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
-    
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
@@ -127,24 +125,29 @@ public class UsuarioJpaController implements Serializable {
             em.close();
         }
     }
-    public Usuario findUsuarioNombre(String nombre) {
-        EntityManager em = getEntityManager();
-        try {
-            TypedQuery<Usuario> query = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombre", Usuario.class);
-            query.setParameter("nombre", nombre);
+    
+    
 
-            // Si hay más de uno, solo devuelve el primero
-            List<Usuario> resultados = query.getResultList();
-            if (!resultados.isEmpty()) {
-                return resultados.get(0);
-            } else {
-                return null;
-            }
-        } finally {
-            em.close();
+
+ public Usuario findUsuarioNombre(String nombre) {
+    EntityManager em = getEntityManager();
+    try {
+        TypedQuery<Usuario> query = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombre", Usuario.class);
+        query.setParameter("nombre", nombre);
+        
+        // Si hay más de uno, solo devuelve el primero
+        List<Usuario> resultados = query.getResultList();
+        if (!resultados.isEmpty()) {
+            return resultados.get(0);
+        } else {
+            return null;
         }
-    } 
+    } finally {
+        em.close();
+    }
+} 
+
 
 
 

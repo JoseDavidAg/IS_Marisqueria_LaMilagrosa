@@ -4,6 +4,13 @@
  */
 package com.IS.marisqueria3.vista;
 
+import com.IS.marisqueria3.controller.exceptions.services.ClienteMesaService;
+import com.IS.marisqueria3.controller.exceptions.services.PedidoService;
+import com.IS.marisqueria3.controller.exceptions.services.ProductoService;
+import com.IS.marisqueria3.model.Producto;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author ambro
@@ -13,10 +20,30 @@ public class IMesero extends javax.swing.JFrame {
     /**
      * Creates new form IMesero
      */
+    private ClienteMesaService clienteS;
+    private PedidoService pedidoS;
+    private ProductoService productoS;
+    private PanelMenu panelMenu;
+    List<Producto>productos;
+    
     public IMesero() {
         initComponents();
+        clienteS= new ClienteMesaService();
+        pedidoS= new PedidoService();
+        productoS= new ProductoService();
+        
+        cargarMenu();
     }
 
+    public void cargarMenu(){
+        productos= new ArrayList<>();
+        productos= productoS.listarProductos();
+        panelMenu= new PanelMenu(productos);
+        panelMenu.setBounds(0, 0, 789, 300);
+        panelMenu.setVisible(true);
+        menuPanel.add(panelMenu);
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -26,21 +53,205 @@ public class IMesero extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenu1 = new javax.swing.JMenu();
+        jPopupMenu1 = new javax.swing.JPopupMenu();
+        bttMesas = new javax.swing.ButtonGroup();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel9 = new javax.swing.JPanel();
+        bttMesa1 = new javax.swing.JToggleButton();
+        bttMesa4 = new javax.swing.JToggleButton();
+        bttMesa2 = new javax.swing.JToggleButton();
+        bttMesa5 = new javax.swing.JToggleButton();
+        bttMesa6 = new javax.swing.JToggleButton();
+        bttMesa3 = new javax.swing.JToggleButton();
+        menuPanel = new javax.swing.JPanel();
+
+        jMenu1.setText("jMenu1");
+
+        jMenu2.setText("menu");
+
+        jMenuItem1.setText("jMenuItem1");
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jButton1.setText("Salir");
+
+        jLabel1.setText("Toma de pedidos");
+
+        bttMesas.add(bttMesa1);
+        bttMesa1.setText("Mesa 1:  : $00.0");
+        bttMesa1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttMesa1ActionPerformed(evt);
+            }
+        });
+
+        bttMesas.add(bttMesa4);
+        bttMesa4.setText("Mesa 4: J:$00.0");
+        bttMesa4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttMesa4ActionPerformed(evt);
+            }
+        });
+
+        bttMesas.add(bttMesa2);
+        bttMesa2.setText("Mesa 2: :$00.0");
+        bttMesa2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttMesa2ActionPerformed(evt);
+            }
+        });
+
+        bttMesas.add(bttMesa5);
+        bttMesa5.setText("Mesa 5: :$00.0");
+        bttMesa5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttMesa5ActionPerformed(evt);
+            }
+        });
+
+        bttMesas.add(bttMesa6);
+        bttMesa6.setText("Mesa 6: :$00.0");
+        bttMesa6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttMesa6ActionPerformed(evt);
+            }
+        });
+
+        bttMesas.add(bttMesa3);
+        bttMesa3.setText("Mesa 3: :$00.0");
+        bttMesa3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttMesa3ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(bttMesa4, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(25, 25, 25)
+                        .addComponent(bttMesa5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(bttMesa1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                        .addComponent(bttMesa2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(bttMesa6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bttMesa3, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(bttMesa3, javax.swing.GroupLayout.DEFAULT_SIZE, 56, Short.MAX_VALUE)
+                    .addComponent(bttMesa1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bttMesa2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(bttMesa4, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                    .addComponent(bttMesa5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bttMesa6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(137, Short.MAX_VALUE))
+        );
+
+        jScrollPane1.setViewportView(jPanel9);
+
+        javax.swing.GroupLayout menuPanelLayout = new javax.swing.GroupLayout(menuPanel);
+        menuPanel.setLayout(menuPanelLayout);
+        menuPanelLayout.setHorizontalGroup(
+            menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        menuPanelLayout.setVerticalGroup(
+            menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 298, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(366, 366, 366))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 6, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(menuPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(57, 57, 57)
+                .addComponent(menuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 83, Short.MAX_VALUE))
+        );
+
+        jScrollPane2.setViewportView(jPanel1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 813, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 566, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bttMesa1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bttMesa1ActionPerformed
+
+    private void bttMesa4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bttMesa4ActionPerformed
+
+    private void bttMesa2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bttMesa2ActionPerformed
+
+    private void bttMesa5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bttMesa5ActionPerformed
+
+    private void bttMesa6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa6ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bttMesa6ActionPerformed
+
+    private void bttMesa3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bttMesa3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -78,5 +289,24 @@ public class IMesero extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton bttMesa1;
+    private javax.swing.JToggleButton bttMesa2;
+    private javax.swing.JToggleButton bttMesa3;
+    private javax.swing.JToggleButton bttMesa4;
+    private javax.swing.JToggleButton bttMesa5;
+    private javax.swing.JToggleButton bttMesa6;
+    private javax.swing.ButtonGroup bttMesas;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JPopupMenu jPopupMenu1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPanel menuPanel;
     // End of variables declaration//GEN-END:variables
 }

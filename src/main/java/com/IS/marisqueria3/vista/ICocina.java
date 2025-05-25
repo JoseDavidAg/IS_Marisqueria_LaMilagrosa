@@ -11,6 +11,7 @@ import com.IS.marisqueria3.model.Pedido;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -138,90 +139,100 @@ public class ICocina extends javax.swing.JFrame {
    private void mostrarPedidos(List<Pedido> pedidos) throws Exception {
     listaPedidoP.removeAll();
     listaPedidoP.setLayout(new BoxLayout(listaPedidoP, BoxLayout.Y_AXIS));
+    Font fontGrande = new Font("SansSerif", Font.PLAIN, 16); // Tamaño de fuente más grande
 
     for (Pedido pedido : pedidos) {
-    JPanel panelPedido = new JPanel();
-    panelPedido.setLayout(new BoxLayout(panelPedido, BoxLayout.Y_AXIS));
-    panelPedido.setBorder(BorderFactory.createTitledBorder("🧾 Pedido #" + pedido.getNumeroPedido()));
-    panelPedido.setBackground(pedido.getEsUrgente() ? new Color(255, 220, 220) : Color.WHITE);
+        JPanel panelPedido = new JPanel();
+        panelPedido.setLayout(new BoxLayout(panelPedido, BoxLayout.Y_AXIS));
+        panelPedido.setBorder(BorderFactory.createTitledBorder("🧾 Pedido #" + pedido.getNumeroPedido()));
+        panelPedido.setBackground(pedido.getEsUrgente() ? new Color(255, 220, 220) : Color.WHITE);
+        panelPedido.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+        panelPedido.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    // ✅ Ocupa todo el ancho disponible
-    panelPedido.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200)); // Alto ajustable
-    panelPedido.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel lblInfo = new JLabel("🍽️ Cliente: " + pedido.getClienteId().getNombre()
+            + " | " + (pedido.getEsUrgente() ? "⚠️ Urgente" : "Normal")
+            + " | Estado: " + pedido.getEstado());
+        lblInfo.setFont(fontGrande);
 
-    // Información con íconos
-    JLabel lblInfo = new JLabel("🍽️ Cliente: " + pedido.getClienteId().getNombre()
-        + " | " + (pedido.getEsUrgente() ? "⚠️ Urgente" : "Normal")
-        + " | Estado: " + pedido.getEstado());
+        JCheckBox chkPreparando = new JCheckBox("Preparando");
+        JCheckBox chkTerminado = new JCheckBox("Terminado");
+        chkPreparando.setFont(fontGrande);
+        chkTerminado.setFont(fontGrande);
 
-    JCheckBox chkPreparando = new JCheckBox("Preparando");
-    JCheckBox chkTerminado = new JCheckBox("Terminado");
-
-    if ("preparando".equals(pedido.getEstado())) {
-        chkPreparando.setSelected(true);
-        chkPreparando.setEnabled(false);
-    }
-
-    if ("terminado".equals(pedido.getEstado())) {
-        chkPreparando.setEnabled(false);
-        chkTerminado.setSelected(true);
-        chkTerminado.setEnabled(false);
-    }
-
-    chkPreparando.addActionListener(e -> {
-        if (chkPreparando.isSelected()) {
-            try {
-                pedido.setEstado("preparando");
-                pedidoS.actualizarPedido(pedido);
-                refrescarListaPedidos();
-            } catch (Exception ex) {
-                Logger.getLogger(ICocina.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        if ("preparando".equals(pedido.getEstado())) {
+            chkPreparando.setSelected(true);
+            chkPreparando.setEnabled(false);
         }
-    });
 
-    chkTerminado.addActionListener(e -> {
-        int confirm = JOptionPane.showConfirmDialog(this, 
-            "¿Estás seguro que deseas marcar el pedido como terminado?",
-            "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            pedido.setEstado("terminado");
-            try {
-                pedidoS.actualizarPedido(pedido);
-                refrescarListaPedidos();
-            } catch (Exception ex) {
-                Logger.getLogger(ICocina.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            chkTerminado.setSelected(false); 
+        if ("terminado".equals(pedido.getEstado())) {
+            chkPreparando.setEnabled(false);
+            chkTerminado.setSelected(true);
+            chkTerminado.setEnabled(false);
         }
-    });
 
-    panelPedido.add(lblInfo);
-    panelPedido.add(chkPreparando);
-    panelPedido.add(chkTerminado);
+        chkPreparando.addActionListener(e -> {
+            if (chkPreparando.isSelected()) {
+                try {
+                    pedido.setEstado("preparando");
+                    pedidoS.actualizarPedido(pedido);
+                    refrescarListaPedidos();
+                } catch (Exception ex) {
+                    Logger.getLogger(ICocina.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
-    // Productos del pedido
-    JPanel panelProductos = new JPanel();
-    panelProductos.setLayout(new BoxLayout(panelProductos, BoxLayout.Y_AXIS));
-    panelProductos.setBackground(new Color(245, 245, 245));
-    panelProductos.setBorder(BorderFactory.createTitledBorder("🧂 Productos del pedido"));
-    panelProductos.setAlignmentX(Component.LEFT_ALIGNMENT);
+        chkTerminado.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "¿Estás seguro que deseas marcar el pedido como terminado?",
+                "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                pedido.setEstado("terminado");
+                try {
+                    pedidoS.actualizarPedido(pedido);
+                    refrescarListaPedidos();
+                } catch (Exception ex) {
+                    Logger.getLogger(ICocina.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                chkTerminado.setSelected(false); 
+            }
+        });
 
-    for (ItemPedido item : pedido.getItemPedidoList()) {
-        JLabel lblProducto = new JLabel("🍽️ " + item.getProducto().getNombre() + " × " + item.getCantidad());
-        panelProductos.add(lblProducto);
+        panelPedido.add(lblInfo);
+        panelPedido.add(chkPreparando);
+        panelPedido.add(chkTerminado);
+
+        // Productos del pedido
+        JPanel panelProductos = new JPanel();
+        panelProductos.setLayout(new BoxLayout(panelProductos, BoxLayout.Y_AXIS));
+        panelProductos.setBackground(new Color(245, 245, 245));
+        panelProductos.setBorder(BorderFactory.createTitledBorder("🧂 Productos del pedido"));
+        panelProductos.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        for (ItemPedido item : pedido.getItemPedidoList()) {
+            JLabel lblProducto = new JLabel("🍽️ " + item.getProducto().getNombre() + " × " + item.getCantidad());
+            lblProducto.setFont(fontGrande);
+            lblProducto.setAlignmentX(Component.LEFT_ALIGNMENT);
+            lblProducto.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+            JLabel lblProductoDes = new JLabel("📝 Nota: " + item.getDescripcion());
+            lblProductoDes.setFont(fontGrande);
+            lblProductoDes.setAlignmentX(Component.LEFT_ALIGNMENT);
+            lblProductoDes.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+            panelProductos.add(lblProducto);
+            panelProductos.add(lblProductoDes);
+        }
+
+        panelPedido.add(panelProductos);
+        listaPedidoP.add(panelPedido);
+        listaPedidoP.add(Box.createVerticalStrut(20)); // Espacio entre pedidos
     }
-
-    panelPedido.add(panelProductos);
-    listaPedidoP.add(panelPedido);
-    listaPedidoP.add(Box.createVerticalStrut(10)); // Espacio entre paneles
-}
 
     listaPedidoP.revalidate();
     listaPedidoP.repaint();
 
-    // Asegurarse de que el scroll se actualice correctamente
     scrollPedidos.setViewportView(listaPedidoP);
 }
 

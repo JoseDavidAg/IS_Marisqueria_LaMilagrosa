@@ -60,10 +60,10 @@ public class Pedido implements Serializable {
     private Date fechaGeneracion;
     @Column(name = "tipo_pedido")
     private String tipoPedido;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido")
-    private List<ItemPedido> itemPedidoList;
     @OneToMany(mappedBy = "pedidoNumero")
     private List<Ticket> ticketList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido")
+    private List<ItemPedido> itemPedidoList;
     @JoinColumn(name = "cliente_id", referencedColumnName = "id_cliente")
     @ManyToOne
     private Cliente clienteId;
@@ -124,21 +124,21 @@ public class Pedido implements Serializable {
     }
 
     @XmlTransient
-    public List<ItemPedido> getItemPedidoList() {
-        return itemPedidoList;
-    }
-
-    public void setItemPedidoList(List<ItemPedido> itemPedidoList) {
-        this.itemPedidoList = itemPedidoList;
-    }
-
-    @XmlTransient
     public List<Ticket> getTicketList() {
         return ticketList;
     }
 
     public void setTicketList(List<Ticket> ticketList) {
         this.ticketList = ticketList;
+    }
+
+    @XmlTransient
+    public List<ItemPedido> getItemPedidoList() {
+        return itemPedidoList;
+    }
+
+    public void setItemPedidoList(List<ItemPedido> itemPedidoList) {
+        this.itemPedidoList = itemPedidoList;
     }
 
     public Cliente getClienteId() {

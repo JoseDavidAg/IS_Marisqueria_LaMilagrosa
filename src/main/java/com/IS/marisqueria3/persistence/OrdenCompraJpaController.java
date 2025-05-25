@@ -28,7 +28,7 @@ public class OrdenCompraJpaController implements Serializable {
     public OrdenCompraJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public OrdenCompraJpaController() {
+    public OrdenCompraJpaController(){
         emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;

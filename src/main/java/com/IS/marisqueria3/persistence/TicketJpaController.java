@@ -26,7 +26,7 @@ public class TicketJpaController implements Serializable {
     public TicketJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public TicketJpaController() {
+    public TicketJpaController(){
         emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;

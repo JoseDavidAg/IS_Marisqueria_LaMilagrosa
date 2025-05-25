@@ -39,7 +39,7 @@ public class ItemOrdenCompra implements Serializable {
     private Integer idItemOrden;
     @Column(name = "cantidad")
     private Integer cantidad;
-    @JoinColumn(name = "ingrediente_codigo", referencedColumnName = "codigo_producto")
+    @JoinColumn(name = "ingrediente_codigo", referencedColumnName = "ingrediente_id")
     @ManyToOne
     private Ingrediente ingredienteCodigo;
     @JoinColumn(name = "orden_compra_numero", referencedColumnName = "numero_orden")

@@ -9,14 +9,13 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -36,7 +35,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Ingrediente.findAll", query = "SELECT i FROM Ingrediente i"),
-    @NamedQuery(name = "Ingrediente.findByCodigoProducto", query = "SELECT i FROM Ingrediente i WHERE i.codigoIngrediente = :codigoIngrediente"),
+    @NamedQuery(name = "Ingrediente.findByIngredienteId", query = "SELECT i FROM Ingrediente i WHERE i.ingredienteId = :ingredienteId"),
     @NamedQuery(name = "Ingrediente.findByDescripcion", query = "SELECT i FROM Ingrediente i WHERE i.descripcion = :descripcion"),
     @NamedQuery(name = "Ingrediente.findByFechaCaducidad", query = "SELECT i FROM Ingrediente i WHERE i.fechaCaducidad = :fechaCaducidad"),
     @NamedQuery(name = "Ingrediente.findByNombre", query = "SELECT i FROM Ingrediente i WHERE i.nombre = :nombre"),
@@ -50,8 +49,8 @@ public class Ingrediente implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "codigo_producto")
-    private Integer codigoIngrediente;
+    @Column(name = "ingrediente_id")
+    private Integer ingredienteId;
     @Column(name = "descripcion")
     private String descripcion;
     @Column(name = "fecha_caducidad")
@@ -67,33 +66,27 @@ public class Ingrediente implements Serializable {
     private Integer stockMinimo;
     @Column(name = "unidad_medida")
     private String unidadMedida;
-    @JoinTable(name = "producto_ingrediente", joinColumns = {
-        @JoinColumn(name = "ingrediente_codigo", referencedColumnName = "codigo_producto")}, inverseJoinColumns = {
-        @JoinColumn(name = "producto_id", referencedColumnName = "id_platillo")})
-    @ManyToMany
-    private List<Producto> productoList;
-    @OneToMany(mappedBy = "ingredienteCodigo")
-    private List<ItemOrdenCompra> itemOrdenCompraList;
-    @JoinColumn(name = "categoria_id", referencedColumnName = "id_categoria")
-    @ManyToOne(optional = false)
-    private CategoriaCarta categoriaId;
     @JoinColumn(name = "proveedor_id", referencedColumnName = "id_proveedor")
     @ManyToOne
     private Proveedor proveedorId;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ingrediente")
+    private List<ProductoIngrediente> productoIngredienteList;
+    @OneToMany(mappedBy = "ingredienteCodigo")
+    private List<ItemOrdenCompra> itemOrdenCompraList;
 
     public Ingrediente() {
     }
 
-    public Ingrediente(Integer codigoProducto) {
-        this.codigoIngrediente = codigoProducto;
+    public Ingrediente(Integer ingredienteId) {
+        this.ingredienteId = ingredienteId;
     }
 
-    public Integer getCodigoIngrediente() {
-        return codigoIngrediente;
+    public Integer getIngredienteId() {
+        return ingredienteId;
     }
 
-    public void setCodigoIngrediente(Integer codigoIngrediente) {
-        this.codigoIngrediente = codigoIngrediente;
+    public void setIngredienteId(Integer ingredienteId) {
+        this.ingredienteId = ingredienteId;
     }
 
     public String getDescripcion() {
@@ -152,13 +145,21 @@ public class Ingrediente implements Serializable {
         this.unidadMedida = unidadMedida;
     }
 
-    @XmlTransient
-    public List<Producto> getProductoList() {
-        return productoList;
+    public Proveedor getProveedorId() {
+        return proveedorId;
     }
 
-    public void setProductoList(List<Producto> productoList) {
-        this.productoList = productoList;
+    public void setProveedorId(Proveedor proveedorId) {
+        this.proveedorId = proveedorId;
+    }
+
+    @XmlTransient
+    public List<ProductoIngrediente> getProductoIngredienteList() {
+        return productoIngredienteList;
+    }
+
+    public void setProductoIngredienteList(List<ProductoIngrediente> productoIngredienteList) {
+        this.productoIngredienteList = productoIngredienteList;
     }
 
     @XmlTransient
@@ -170,26 +171,10 @@ public class Ingrediente implements Serializable {
         this.itemOrdenCompraList = itemOrdenCompraList;
     }
 
-    public CategoriaCarta getCategoriaId() {
-        return categoriaId;
-    }
-
-    public void setCategoriaId(CategoriaCarta categoriaId) {
-        this.categoriaId = categoriaId;
-    }
-
-    public Proveedor getProveedorId() {
-        return proveedorId;
-    }
-
-    public void setProveedorId(Proveedor proveedorId) {
-        this.proveedorId = proveedorId;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (codigoIngrediente != null ? codigoIngrediente.hashCode() : 0);
+        hash += (ingredienteId != null ? ingredienteId.hashCode() : 0);
         return hash;
     }
 
@@ -200,7 +185,7 @@ public class Ingrediente implements Serializable {
             return false;
         }
         Ingrediente other = (Ingrediente) object;
-        if ((this.codigoIngrediente == null && other.codigoIngrediente != null) || (this.codigoIngrediente != null && !this.codigoIngrediente.equals(other.codigoIngrediente))) {
+        if ((this.ingredienteId == null && other.ingredienteId != null) || (this.ingredienteId != null && !this.ingredienteId.equals(other.ingredienteId))) {
             return false;
         }
         return true;
@@ -208,7 +193,7 @@ public class Ingrediente implements Serializable {
 
     @Override
     public String toString() {
-        return "com.IS.marisqueria3.model.Ingrediente[ codigoProducto=" + codigoIngrediente + " ]";
+        return "com.IS.marisqueria3.model.Ingrediente[ ingredienteId=" + ingredienteId + " ]";
     }
     
 }
