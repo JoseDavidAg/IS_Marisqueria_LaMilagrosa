@@ -1,0 +1,5 @@
+# Ignorar archivos generados en /model
+**/model/*_.java
+
+# Ignorar la carpeta target (compilación de Maven)
+**/target/

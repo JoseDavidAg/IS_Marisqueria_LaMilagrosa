@@ -110,6 +110,8 @@ public class PedidoService {
         return true;
     }*/
     
+  
+    
     public boolean productoDisponible(Integer idProducto) {
     // Usar una consulta optimizada con JOIN para evitar múltiples SELECTs
     List<Object[]> resultados = proIngredienteJpa.findStockByProductoId(idProducto);

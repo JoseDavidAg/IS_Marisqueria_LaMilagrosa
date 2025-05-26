@@ -7,9 +7,15 @@ package com.IS.marisqueria3.vista;
 import com.IS.marisqueria3.controller.exceptions.services.ClienteMesaService;
 import com.IS.marisqueria3.controller.exceptions.services.PedidoService;
 import com.IS.marisqueria3.controller.exceptions.services.ProductoService;
+import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.model.Producto;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.swing.JToggleButton;
 
 /**
  *
@@ -25,17 +31,54 @@ public class IMesero extends javax.swing.JFrame {
     private ProductoService productoS;
     private PanelMenu panelMenu;
     List<Producto>productos;
+    private PanelPedidoIM panelPedidoIM;
+    private Map<Integer, Pedido> pedidosPorMesa = new HashMap<>();
     
     public IMesero() {
         initComponents();
         clienteS= new ClienteMesaService();
         pedidoS= new PedidoService();
         productoS= new ProductoService();
+        
+        cargarMenu();
+        initPanelPedido();
         new javax.swing.Timer(10000, e -> actualizarMenu()).start(); // cada 5 segundos
 
-        cargarMenu();
     }
+    
+    private void initPanelPedido() {
+        panelPedidoIM = new PanelPedidoIM();
+        panelPedidoIM.setPedidoListener(new PanelPedidoIM.PedidoListener() {
+            @Override
+            public void onPedidoConfirmado(Pedido pedido, int mesa) {
+                pedidoS.crearPedido(pedido);
+                pedidosPorMesa.put(mesa, pedido);
+            }
 
+            @Override
+            public void onActualizarEstadoMesa(int mesa, String estado, double total) {
+                actualizarEstadoMesa(mesa, estado, total);
+            }
+        });
+        pedidoItemPanel.add(panelPedidoIM, BorderLayout.EAST); // Ajustar según layout
+    }
+    // Método para manejar clic en botones de mesa
+
+
+    private void actualizarEstadoMesa(int mesa, String estado, double total) {
+        JToggleButton boton = switch (mesa) {
+            case 1 -> bttMesa1;
+            case 2 -> bttMesa2;
+            case 3 -> bttMesa3;
+            case 4 -> bttMesa4;
+            case 5->bttMesa5;
+            case 6->bttMesa6;
+            default -> throw new IllegalArgumentException("Mesa inválida");
+        };
+        boton.setText(String.format("Mesa %d: %s - $%.2f", mesa, estado, total));
+        boton.setForeground(estado.contains("Ocupado") ? Color.RED : Color.BLACK);
+    }
+    
     public void cargarMenu(){
         productos= new ArrayList<>();
         productos= productoS.listarProductos();
@@ -55,7 +98,10 @@ public class IMesero extends javax.swing.JFrame {
         menuPanel.repaint();
         }
     }
-
+    
+    public PanelPedidoIM getPanelPedido() {
+       return panelPedidoIM;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -83,6 +129,8 @@ public class IMesero extends javax.swing.JFrame {
         bttMesa6 = new javax.swing.JToggleButton();
         bttMesa3 = new javax.swing.JToggleButton();
         menuPanel = new javax.swing.JPanel();
+        pedidoItemPanel = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
 
         jMenu1.setText("jMenu1");
 
@@ -187,11 +235,32 @@ public class IMesero extends javax.swing.JFrame {
         menuPanel.setLayout(menuPanelLayout);
         menuPanelLayout.setHorizontalGroup(
             menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 789, Short.MAX_VALUE)
         );
         menuPanelLayout.setVerticalGroup(
             menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 298, Short.MAX_VALUE)
+            .addGap(0, 310, Short.MAX_VALUE)
+        );
+
+        pedidoItemPanel.setBackground(new java.awt.Color(204, 204, 255));
+
+        jLabel2.setText("Items Pedido");
+
+        javax.swing.GroupLayout pedidoItemPanelLayout = new javax.swing.GroupLayout(pedidoItemPanel);
+        pedidoItemPanel.setLayout(pedidoItemPanelLayout);
+        pedidoItemPanelLayout.setHorizontalGroup(
+            pedidoItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pedidoItemPanelLayout.createSequentialGroup()
+                .addGap(352, 352, 352)
+                .addComponent(jLabel2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pedidoItemPanelLayout.setVerticalGroup(
+            pedidoItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pedidoItemPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addContainerGap(276, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -209,7 +278,9 @@ public class IMesero extends javax.swing.JFrame {
                 .addGap(0, 6, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(menuPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(menuPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pedidoItemPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -222,7 +293,9 @@ public class IMesero extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(57, 57, 57)
                 .addComponent(menuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 83, Short.MAX_VALUE))
+                .addGap(49, 49, 49)
+                .addComponent(pedidoItemPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 153, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(jPanel1);
@@ -310,15 +383,16 @@ public class IMesero extends javax.swing.JFrame {
     private javax.swing.ButtonGroup bttMesas;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPanel menuPanel;
+    private javax.swing.JPanel pedidoItemPanel;
     // End of variables declaration//GEN-END:variables
 }
