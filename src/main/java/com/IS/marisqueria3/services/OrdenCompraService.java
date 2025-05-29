@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.IS.marisqueria3.controller.exceptions.services;
+package com.IS.marisqueria3.services;
 
 import com.IS.marisqueria3.model.ItemOrdenCompra;
 import com.IS.marisqueria3.model.OrdenCompra;
@@ -75,6 +75,10 @@ public class OrdenCompraService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Proveedor listarProveedoresNombre(String toString) {
+        return proveedorJpa.findProveedorNombre(toString);
     }
     
 }

@@ -2,21 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.IS.marisqueria3.controller.exceptions.services;
+package com.IS.marisqueria3.services;
 
 
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.ItemPedidoPK;
 import com.IS.marisqueria3.model.Pedido;
-import com.IS.marisqueria3.model.Producto;
-import com.IS.marisqueria3.model.ProductoIngrediente;
-import com.IS.marisqueria3.model.ProductoIngredientePK;
 import com.IS.marisqueria3.persistence.ItemPedidoJpaController;
 import com.IS.marisqueria3.persistence.PedidoJpaController;
 import com.IS.marisqueria3.persistence.ProductoIngredienteJpaController;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.List;
+import javax.persistence.EntityManager;
 /**
  *
  * @author ambro
@@ -37,10 +35,24 @@ public class PedidoService {
         return pedidoJpa.findPedidoEntities();
     }
 
+    // En PedidoService.java (método crearPedido)
+    // En PedidoService.crearPedido()
     public void crearPedido(Pedido pedido) {
-        pedidoJpa.create(pedido);
+        EntityManager em = pedidoJpa.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(pedido);
+            em.flush(); // Forzar generación de ID
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            // Manejar rollback
+        }
+}
+    
+    public EntityManager getEntityManager() {
+        return pedidoJpa.getEntityManager();
     }
-
+    
     public void eliminarPedido(int idPedido) {
         try {
             pedidoJpa.destroy(idPedido);

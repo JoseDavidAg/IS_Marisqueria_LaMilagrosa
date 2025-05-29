@@ -72,7 +72,7 @@ public class PedidoJpaController implements Serializable {
             pedido.setItemPedidoList(attachedItemPedidoList);
             em.persist(pedido);
             if (clienteId != null) {
-                clienteId.getPedidoList().add(pedido);
+                clienteId.getPedidos().add(pedido);
                 clienteId = em.merge(clienteId);
             }
             for (Ticket ticketListTicket : pedido.getTicketList()) {
@@ -145,11 +145,11 @@ public class PedidoJpaController implements Serializable {
             pedido.setItemPedidoList(itemPedidoListNew);
             pedido = em.merge(pedido);
             if (clienteIdOld != null && !clienteIdOld.equals(clienteIdNew)) {
-                clienteIdOld.getPedidoList().remove(pedido);
+                clienteIdOld.getPedidos().remove(pedido);
                 clienteIdOld = em.merge(clienteIdOld);
             }
             if (clienteIdNew != null && !clienteIdNew.equals(clienteIdOld)) {
-                clienteIdNew.getPedidoList().add(pedido);
+                clienteIdNew.getPedidos().add(pedido);
                 clienteIdNew = em.merge(clienteIdNew);
             }
             for (Ticket ticketListOldTicket : ticketListOld) {
@@ -222,7 +222,7 @@ public class PedidoJpaController implements Serializable {
             }
             Cliente clienteId = pedido.getClienteId();
             if (clienteId != null) {
-                clienteId.getPedidoList().remove(pedido);
+                clienteId.getPedidos().remove(pedido);
                 clienteId = em.merge(clienteId);
             }
             List<Ticket> ticketList = pedido.getTicketList();

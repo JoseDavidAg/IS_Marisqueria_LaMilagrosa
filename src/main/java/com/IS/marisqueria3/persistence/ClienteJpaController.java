@@ -41,8 +41,8 @@ public class ClienteJpaController implements Serializable {
         if (cliente.getMesaList() == null) {
             cliente.setMesaList(new ArrayList<Mesa>());
         }
-        if (cliente.getPedidoList() == null) {
-            cliente.setPedidoList(new ArrayList<Pedido>());
+        if (cliente.getPedidos() == null) {
+            cliente.setPedidos(new ArrayList<Pedido>());
         }
         EntityManager em = null;
         try {
@@ -55,11 +55,11 @@ public class ClienteJpaController implements Serializable {
             }
             cliente.setMesaList(attachedMesaList);
             List<Pedido> attachedPedidoList = new ArrayList<Pedido>();
-            for (Pedido pedidoListPedidoToAttach : cliente.getPedidoList()) {
+            for (Pedido pedidoListPedidoToAttach : cliente.getPedidos()) {
                 pedidoListPedidoToAttach = em.getReference(pedidoListPedidoToAttach.getClass(), pedidoListPedidoToAttach.getNumeroPedido());
                 attachedPedidoList.add(pedidoListPedidoToAttach);
             }
-            cliente.setPedidoList(attachedPedidoList);
+            cliente.setPedidos(attachedPedidoList);
             em.persist(cliente);
             for (Mesa mesaListMesa : cliente.getMesaList()) {
                 Cliente oldClienteIdOfMesaListMesa = mesaListMesa.getClienteId();
@@ -70,12 +70,12 @@ public class ClienteJpaController implements Serializable {
                     oldClienteIdOfMesaListMesa = em.merge(oldClienteIdOfMesaListMesa);
                 }
             }
-            for (Pedido pedidoListPedido : cliente.getPedidoList()) {
+            for (Pedido pedidoListPedido : cliente.getPedidos()) {
                 Cliente oldClienteIdOfPedidoListPedido = pedidoListPedido.getClienteId();
                 pedidoListPedido.setClienteId(cliente);
                 pedidoListPedido = em.merge(pedidoListPedido);
                 if (oldClienteIdOfPedidoListPedido != null) {
-                    oldClienteIdOfPedidoListPedido.getPedidoList().remove(pedidoListPedido);
+                    oldClienteIdOfPedidoListPedido.getPedidos().remove(pedidoListPedido);
                     oldClienteIdOfPedidoListPedido = em.merge(oldClienteIdOfPedidoListPedido);
                 }
             }
@@ -95,8 +95,8 @@ public class ClienteJpaController implements Serializable {
             Cliente persistentCliente = em.find(Cliente.class, cliente.getIdCliente());
             List<Mesa> mesaListOld = persistentCliente.getMesaList();
             List<Mesa> mesaListNew = cliente.getMesaList();
-            List<Pedido> pedidoListOld = persistentCliente.getPedidoList();
-            List<Pedido> pedidoListNew = cliente.getPedidoList();
+            List<Pedido> pedidoListOld = persistentCliente.getPedidos();
+            List<Pedido> pedidoListNew = cliente.getPedidos();
             List<Mesa> attachedMesaListNew = new ArrayList<Mesa>();
             for (Mesa mesaListNewMesaToAttach : mesaListNew) {
                 mesaListNewMesaToAttach = em.getReference(mesaListNewMesaToAttach.getClass(), mesaListNewMesaToAttach.getIdMesa());
@@ -110,7 +110,7 @@ public class ClienteJpaController implements Serializable {
                 attachedPedidoListNew.add(pedidoListNewPedidoToAttach);
             }
             pedidoListNew = attachedPedidoListNew;
-            cliente.setPedidoList(pedidoListNew);
+            cliente.setPedidos(pedidoListNew);
             cliente = em.merge(cliente);
             for (Mesa mesaListOldMesa : mesaListOld) {
                 if (!mesaListNew.contains(mesaListOldMesa)) {
@@ -141,7 +141,7 @@ public class ClienteJpaController implements Serializable {
                     pedidoListNewPedido.setClienteId(cliente);
                     pedidoListNewPedido = em.merge(pedidoListNewPedido);
                     if (oldClienteIdOfPedidoListNewPedido != null && !oldClienteIdOfPedidoListNewPedido.equals(cliente)) {
-                        oldClienteIdOfPedidoListNewPedido.getPedidoList().remove(pedidoListNewPedido);
+                        oldClienteIdOfPedidoListNewPedido.getPedidos().remove(pedidoListNewPedido);
                         oldClienteIdOfPedidoListNewPedido = em.merge(oldClienteIdOfPedidoListNewPedido);
                     }
                 }
@@ -180,7 +180,7 @@ public class ClienteJpaController implements Serializable {
                 mesaListMesa.setClienteId(null);
                 mesaListMesa = em.merge(mesaListMesa);
             }
-            List<Pedido> pedidoList = cliente.getPedidoList();
+            List<Pedido> pedidoList = cliente.getPedidos();
             for (Pedido pedidoListPedido : pedidoList) {
                 pedidoListPedido.setClienteId(null);
                 pedidoListPedido = em.merge(pedidoListPedido);

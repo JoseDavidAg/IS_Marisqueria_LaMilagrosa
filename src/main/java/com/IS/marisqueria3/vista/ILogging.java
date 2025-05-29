@@ -4,7 +4,7 @@
  */
 package com.IS.marisqueria3.vista;
 
-import com.IS.marisqueria3.controller.exceptions.services.UsuarioService;
+import com.IS.marisqueria3.services.UsuarioService;
 import com.IS.marisqueria3.model.Usuario;
 import com.IS.marisqueria3.util.SessionManager;
 import java.util.logging.Level;

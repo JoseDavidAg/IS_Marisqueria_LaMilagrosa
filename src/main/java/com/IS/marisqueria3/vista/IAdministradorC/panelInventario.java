@@ -1,0 +1,205 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
+package com.IS.marisqueria3.vista.IAdministradorC; 
+
+import com.IS.marisqueria3.model.CategoriaCarta;
+import com.IS.marisqueria3.model.Ingrediente;
+import com.IS.marisqueria3.model.MTablas.TMIngrediente;
+import com.IS.marisqueria3.model.Proveedor;
+import com.IS.marisqueria3.services.OrdenCompraService;
+import com.IS.marisqueria3.services.ProductoService;
+import com.IS.marisqueria3.vista.IAdministrador;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
+
+
+
+public class panelInventario extends javax.swing.JPanel {
+      
+    TMIngrediente tablaIngrediente;
+    ProductoService productoS;
+    OrdenCompraService compraS;
+    List<CategoriaCarta>categorias;
+    
+    
+    public panelInventario() {
+        //ingredientes GUI
+        compraS= new OrdenCompraService();
+        productoS= new ProductoService();
+        initComponents();
+        cargarIngredientesEditar();
+        
+    }
+    
+     //ingredientes GUI
+    public void cargarIngredientesEditar(){
+        
+        List<Ingrediente> ingredientes = new ArrayList<>();
+        List<Proveedor> proveedores = new ArrayList<>();
+        proveedores= compraS.listarProveedores();
+        
+        cargarUnidadMedida();
+        cargarProveedores(proveedores);
+        
+        ingredientes= productoS.listarIngredientes();
+        
+
+      
+      tablaIngrediente= new TMIngrediente(ingredientes);
+      for{
+      ingredientesTabla1.setModel(tablaIngrediente);
+      }
+       repaint();
+        
+    }
+    
+
+    public void cargarUnidadMedida(){
+
+        cbUnidadMedida.removeAllItems();
+        String[]uni= {"kg","l","ml","piezas"};
+        for(String t:uni){
+            cbUnidadMedida.addItem(t);     
+        }   
+    }
+    public void cargarProveedores(List<Proveedor>p){ 
+        cbProveedores.removeAllItems();
+        for(Proveedor t:p){
+            System.out.println(t.getNombre());     
+        } 
+        for(Proveedor t:p){
+            cbProveedores.addItem(t.getNombre());     
+        }   
+    }
+    
+    public void crearIngrediente() {
+    try {
+        // Validación de campos vacíos
+        String nombre = txtNombreIngrediente.getText().trim();
+        String descripcion = txtProductoDescripcion.getText().trim();
+        String precioStr = txtPrecio.getText().trim();
+        String stockStr = txtStock.getText().trim();
+        String unidad = (String) cbUnidadMedida.getSelectedItem();
+        String proveedorNombre = (String) cbProveedores.getSelectedItem();
+
+        if (nombre.isEmpty() || descripcion.isEmpty() || precioStr.isEmpty() || stockStr.isEmpty() || unidad == null || proveedorNombre == null) {
+            JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        float precio;
+        int stockMinimo;
+        try {
+            precio = Float.parseFloat(precioStr);
+            stockMinimo = Integer.parseInt(stockStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Precio y stock deben ser valores numéricos válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Crear objeto Ingrediente
+        Ingrediente in = new Ingrediente();
+        in.setNombre(nombre);
+        in.setDescripcion(descripcion);
+        in.setPrecioUnitario(precio);
+        in.setStockMinimo(stockMinimo);
+        in.setUnidadMedida(unidad);
+        in.setStockDisponible(0);
+        in.setProveedorId(compraS.listarProveedoresNombre(proveedorNombre));
+
+        // Guardar en base de datos
+        productoS.crearIngrediente(in);
+        JOptionPane.showMessageDialog(this, "Ingrediente registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            limpiarCamposIngrediente();
+            cargarIngredientesEditar(); // Refrescar tabla
+        
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al registrar ingrediente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        Logger.getLogger(IAdministrador.class.getName()).log(Level.SEVERE, null, e);
+    }
+}
+     public void limpiarCamposIngrediente() {
+        txtNombreIngrediente.setText("");
+        txtProductoDescripcion.setText("");
+        txtPrecio.setText("");
+        txtStock.setText("");
+        cbUnidadMedida.setSelectedIndex(0);
+        cbProveedores.setSelectedIndex(0);
+    }
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jButton4 = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        ingredientesTabla2 = new javax.swing.JTable();
+
+        jButton4.setText("Guardar");
+
+        jLabel5.setText("Ingreso / Merma de Inventario");
+
+        ingredientesTabla2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane8.setViewportView(ingredientesTabla2);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(128, 128, 128)
+                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 643, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(355, 355, 355)
+                        .addComponent(jLabel5))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(418, 418, 418)
+                        .addComponent(jButton4)))
+                .addContainerGap(54, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(59, 59, 59)
+                .addComponent(jLabel5)
+                .addGap(109, 109, 109)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(67, 67, 67)
+                .addComponent(jButton4)
+                .addContainerGap(184, Short.MAX_VALUE))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable ingredientesTabla2;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JScrollPane jScrollPane8;
+    // End of variables declaration//GEN-END:variables
+}

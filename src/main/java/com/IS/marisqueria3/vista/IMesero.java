@@ -4,9 +4,7 @@
  */
 package com.IS.marisqueria3.vista;
 
-import com.IS.marisqueria3.controller.exceptions.services.ClienteMesaService;
-import com.IS.marisqueria3.controller.exceptions.services.PedidoService;
-import com.IS.marisqueria3.controller.exceptions.services.ProductoService;
+import com.IS.marisqueria3.services.*;
 import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.model.Producto;
 import java.awt.BorderLayout;
@@ -15,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JToggleButton;
 
 /**
@@ -36,14 +36,16 @@ public class IMesero extends javax.swing.JFrame {
     
     public IMesero() {
         initComponents();
-        clienteS= new ClienteMesaService();
-        pedidoS= new PedidoService();
-        productoS= new ProductoService();
-        
-        cargarMenu();
-        initPanelPedido();
-        new javax.swing.Timer(10000, e -> actualizarMenu()).start(); // cada 5 segundos
+        clienteS = new ClienteMesaService();
+        pedidoS = new PedidoService();
+        productoS = new ProductoService();
 
+        initPanelPedido();
+        cargarMenu();
+
+        // Asegurar visibilidad inicial
+        pedidoItemPanel.setVisible(true);
+        new javax.swing.Timer(10000, e -> actualizarMenu()).start();
     }
     
     private void initPanelPedido() {
@@ -54,13 +56,22 @@ public class IMesero extends javax.swing.JFrame {
                 pedidoS.crearPedido(pedido);
                 pedidosPorMesa.put(mesa, pedido);
             }
-
-            @Override
-            public void onActualizarEstadoMesa(int mesa, String estado, double total) {
-                actualizarEstadoMesa(mesa, estado, total);
-            }
+            
+    @Override
+    public void onActualizarEstadoMesa(int mesa, String estado, double total) {
+    
+        
+                try {
+                    clienteS.actualizarEstadoMesa(mesa, estado); // Actualiza la base de datos
+                } catch (Exception ex) {
+                    Logger.getLogger(IMesero.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        actualizarEstadoMesa(mesa, estado, total); // Actualiza la UI
+    }
         });
-        pedidoItemPanel.add(panelPedidoIM, BorderLayout.EAST); // Ajustar según layout
+        pedidoItemPanel.removeAll(); // Limpiar contenido previo
+        pedidoItemPanel.add(panelPedidoIM, BorderLayout.CENTER); // Añadir al layout
+        pedidoItemPanel.revalidate(); // Forzar actualización
     }
     // Método para manejar clic en botones de mesa
 
@@ -75,6 +86,7 @@ public class IMesero extends javax.swing.JFrame {
             case 6->bttMesa6;
             default -> throw new IllegalArgumentException("Mesa inválida");
         };
+        
         boton.setText(String.format("Mesa %d: %s - $%.2f", mesa, estado, total));
         boton.setForeground(estado.contains("Ocupado") ? Color.RED : Color.BLACK);
     }
@@ -97,6 +109,15 @@ public class IMesero extends javax.swing.JFrame {
         menuPanel.revalidate();
         menuPanel.repaint();
         }
+    }
+    
+    // Dentro de la clase IMesero
+    public void actualizarPanelPedido() {
+        panelPedidoIM.revalidate();
+        panelPedidoIM.repaint();
+        //pedidoItemPanel.revalidate();
+        //pedidoItemPanel.repaint();
+        
     }
     
     public PanelPedidoIM getPanelPedido() {
@@ -243,25 +264,9 @@ public class IMesero extends javax.swing.JFrame {
         );
 
         pedidoItemPanel.setBackground(new java.awt.Color(204, 204, 255));
+        pedidoItemPanel.setLayout(new java.awt.BorderLayout());
 
         jLabel2.setText("Items Pedido");
-
-        javax.swing.GroupLayout pedidoItemPanelLayout = new javax.swing.GroupLayout(pedidoItemPanel);
-        pedidoItemPanel.setLayout(pedidoItemPanelLayout);
-        pedidoItemPanelLayout.setHorizontalGroup(
-            pedidoItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pedidoItemPanelLayout.createSequentialGroup()
-                .addGap(352, 352, 352)
-                .addComponent(jLabel2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pedidoItemPanelLayout.setVerticalGroup(
-            pedidoItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pedidoItemPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel2)
-                .addContainerGap(276, Short.MAX_VALUE))
-        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -282,6 +287,10 @@ public class IMesero extends javax.swing.JFrame {
                     .addComponent(menuPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pedidoItemPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(358, 358, 358)
+                .addComponent(jLabel2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -293,9 +302,11 @@ public class IMesero extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(57, 57, 57)
                 .addComponent(menuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
+                .addGap(27, 27, 27)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pedidoItemPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 153, Short.MAX_VALUE))
+                .addGap(0, 436, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(jPanel1);
@@ -315,27 +326,109 @@ public class IMesero extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bttMesa1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa1ActionPerformed
-        // TODO add your handling code here:
+        panelPedidoIM.setMesaActual(1);
+    
+    if (pedidosPorMesa.containsKey(1)) {
+        panelPedidoIM.cargarPedido(pedidosPorMesa.get(1));
+    } else {
+        panelPedidoIM.resetearFormulario();
+    }
+    
+    // Asegurar visibilidad y actualización
+    pedidoItemPanel.setVisible(true);
+    panelPedidoIM.revalidate();
+    panelPedidoIM.repaint();
     }//GEN-LAST:event_bttMesa1ActionPerformed
 
     private void bttMesa4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa4ActionPerformed
-        // TODO add your handling code here:
+        panelPedidoIM.setMesaActual(4);
+    
+    if (pedidosPorMesa.containsKey(4)) {
+        panelPedidoIM.cargarPedido(pedidosPorMesa.get(4));
+    } else {
+        panelPedidoIM.resetearFormulario();
+    }
+    
+    // Asegurar visibilidad y actualización
+    pedidoItemPanel.setVisible(true);
+    panelPedidoIM.revalidate();
+    panelPedidoIM.repaint();
     }//GEN-LAST:event_bttMesa4ActionPerformed
 
     private void bttMesa2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa2ActionPerformed
-        // TODO add your handling code here:
+        panelPedidoIM.setMesaActual(2);
+    
+    if (pedidosPorMesa.containsKey(2)) {
+        panelPedidoIM.cargarPedido(pedidosPorMesa.get(2));
+    } else {
+        panelPedidoIM.resetearFormulario();
+    }
+    
+    // Asegurar visibilidad y actualización
+    pedidoItemPanel.setVisible(true);
+    panelPedidoIM.revalidate();
+    panelPedidoIM.repaint();
     }//GEN-LAST:event_bttMesa2ActionPerformed
 
     private void bttMesa5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa5ActionPerformed
-        // TODO add your handling code here:
+        panelPedidoIM.setMesaActual(5);
+    
+    if (pedidosPorMesa.containsKey(5)) {
+        panelPedidoIM.cargarPedido(pedidosPorMesa.get(5));
+    } else {
+        panelPedidoIM.resetearFormulario();
+    }
+    
+    // Asegurar visibilidad y actualización
+    pedidoItemPanel.setVisible(true);
+    panelPedidoIM.revalidate();
+    panelPedidoIM.repaint();
     }//GEN-LAST:event_bttMesa5ActionPerformed
 
     private void bttMesa6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa6ActionPerformed
-        // TODO add your handling code here:
+        pedidoItemPanel.setVisible(true); // Asegurar visibilidad
+        panelPedidoIM.setMesaActual(6);
+        // Forzar actualización del layout y contenido
+        pedidoItemPanel.removeAll();
+        pedidoItemPanel.add(panelPedidoIM, BorderLayout.CENTER); // Asegurar el layout
+        pedidoItemPanel.revalidate();
+        pedidoItemPanel.repaint();
+        // Mostrar siempre el panel de pedido
+        pedidoItemPanel.setVisible(true);
+
+        if (pedidosPorMesa.containsKey(6)) {
+            // Si ya existe un pedido, cargarlo
+            panelPedidoIM.cargarPedido(pedidosPorMesa.get(6));
+        } else {
+            // Resetear para nuevo pedido
+            panelPedidoIM.resetearFormulario();
+        }
+
+        // Actualizar selección visual
+        bttMesas.setSelected(bttMesa6.getModel(), true);
     }//GEN-LAST:event_bttMesa6ActionPerformed
 
     private void bttMesa3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttMesa3ActionPerformed
-        // TODO add your handling code here:
+        pedidoItemPanel.setVisible(true); // Asegurar visibilidad
+        panelPedidoIM.setMesaActual(3);
+        // Forzar actualización del layout y contenido
+        pedidoItemPanel.removeAll();
+        pedidoItemPanel.add(panelPedidoIM, BorderLayout.CENTER); // Asegurar el layout
+        pedidoItemPanel.revalidate();
+        pedidoItemPanel.repaint();
+        // Mostrar siempre el panel de pedido
+        pedidoItemPanel.setVisible(true);
+
+        if (pedidosPorMesa.containsKey(3)) {
+            // Si ya existe un pedido, cargarlo
+            panelPedidoIM.cargarPedido(pedidosPorMesa.get(3));
+        } else {
+            // Resetear para nuevo pedido
+            panelPedidoIM.resetearFormulario();
+        }
+
+        // Actualizar selección visual
+        bttMesas.setSelected(bttMesa3.getModel(), true);
     }//GEN-LAST:event_bttMesa3ActionPerformed
 
     /**

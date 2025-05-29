@@ -4,8 +4,7 @@
  */
 package com.IS.marisqueria3.vista;
 
-import com.IS.marisqueria3.controller.exceptions.services.PedidoService;
-import com.IS.marisqueria3.controller.exceptions.services.ProductoService;
+import com.IS.marisqueria3.services.*;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.Pedido;
 import java.awt.Color;
@@ -92,7 +91,7 @@ public class ICocina extends javax.swing.JFrame {
                 .addGap(303, 303, 303)
                 .addComponent(jLabel1)
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(scrollPedidos)
                 .addContainerGap())
@@ -106,7 +105,7 @@ public class ICocina extends javax.swing.JFrame {
                         .addGap(30, 30, 30)
                         .addComponent(jLabel1)))
                 .addGap(30, 30, 30)
-                .addComponent(scrollPedidos, javax.swing.GroupLayout.PREFERRED_SIZE, 462, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(scrollPedidos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(20, Short.MAX_VALUE))
         );
 

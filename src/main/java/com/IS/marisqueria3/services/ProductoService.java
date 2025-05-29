@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.IS.marisqueria3.controller.exceptions.services;
+package com.IS.marisqueria3.services;
 
 import com.IS.marisqueria3.model.CategoriaCarta;
 import com.IS.marisqueria3.model.Ingrediente;
@@ -37,7 +37,7 @@ public class ProductoService {
     }
 
     public void crearProducto(Producto producto) throws Exception {
-        productoJpa.create(producto);
+         productoJpa.create(producto);
     }
 
     public void eliminarProducto(int idProducto) throws Exception {

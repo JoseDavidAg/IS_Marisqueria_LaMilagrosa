@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.IS.marisqueria3.controller.exceptions.services;
+package com.IS.marisqueria3.services;
 
 import com.IS.marisqueria3.model.Cliente;
 import com.IS.marisqueria3.model.Mesa;
@@ -87,6 +87,18 @@ public class ClienteMesaService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    // En ClienteMesaService.java (método actualizarEstadoMesa)
+    public void actualizarEstadoMesa(int idMesa, String estado) throws Exception {
+        Mesa mesa = mesaJpa.findMesa(idMesa);
+        if (mesa == null) {
+            throw new IllegalArgumentException("Mesa no existe");
+        }
+        
+        boolean es=!estado.equals("Ocupado");
+        mesa.setEstaDisponible(es);
+        mesaJpa.edit(new Mesa(idMesa));
     }
     
 }

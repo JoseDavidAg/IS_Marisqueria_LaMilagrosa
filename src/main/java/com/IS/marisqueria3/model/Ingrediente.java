@@ -59,7 +59,7 @@ public class Ingrediente implements Serializable {
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "precio_unitario")
-    private BigInteger precioUnitario;
+    private float precioUnitario;
     @Column(name = "stock_disponible")
     private Integer stockDisponible;
     @Column(name = "stock_minimo")
@@ -113,11 +113,11 @@ public class Ingrediente implements Serializable {
         this.nombre = nombre;
     }
 
-    public BigInteger getPrecioUnitario() {
+    public float getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(BigInteger precioUnitario) {
+    public void setPrecioUnitario(float precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 

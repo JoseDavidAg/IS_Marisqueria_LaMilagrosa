@@ -9,7 +9,7 @@ package com.IS.marisqueria3.vista;
  * @author ambro
  */
 
-import com.IS.marisqueria3.controller.exceptions.services.PedidoService;
+import com.IS.marisqueria3.services.*;
 import com.IS.marisqueria3.model.ItemPedido;
 import com.IS.marisqueria3.model.Pedido;
 import javax.swing.*;

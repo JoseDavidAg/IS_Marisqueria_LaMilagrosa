@@ -4,7 +4,7 @@
  */
 package com.IS.marisqueria3.vista;
 
-import com.IS.marisqueria3.controller.exceptions.services.PedidoService;
+import com.IS.marisqueria3.services.*;
 import com.IS.marisqueria3.model.Producto;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -63,8 +63,8 @@ public class CardProducto extends JPanel {
         add(btnAgregar);
 
         btnAgregar.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                    producto.getNombre() + " agregado a la comanda");
+            JOptionPane.showMessageDialog(SwingUtilities.getRoot(this), // Usar el root pane
+                producto.getNombre() + " agregado a la comanda");
         });
 
         addMouseListener(new MouseAdapter() {
@@ -78,6 +78,9 @@ public class CardProducto extends JPanel {
         btnAgregar.addActionListener(e -> {
             IMesero parent = (IMesero) SwingUtilities.getWindowAncestor(this);
             parent.getPanelPedido().agregarItem(producto);
+
+            // Llama al método público de actualización
+            parent.actualizarPanelPedido(); 
         });
         actualizarDisponibilidad();
     }
