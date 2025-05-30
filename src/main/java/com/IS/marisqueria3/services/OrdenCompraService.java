@@ -81,4 +81,8 @@ public class OrdenCompraService {
         return proveedorJpa.findProveedorNombre(toString);
     }
     
+    public void editarProveedor(Proveedor proveedor) throws Exception{
+        proveedorJpa.edit(proveedor);
+    }
+    
 }

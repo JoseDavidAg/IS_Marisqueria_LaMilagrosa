@@ -39,7 +39,10 @@ public class UsuarioService {
             System.out.println("Error al eliminar usuario: " + e.getMessage());
         }
     }
-
+    
+    public void editarUsuario(Usuario usuario) throws Exception{
+        usuarioJpa.edit(usuario);
+    }
     public Usuario autenticar(String user, String contraseña) {
         
         Usuario u = usuarioJpa.findUsuarioNombre(user);
