@@ -5,9 +5,7 @@
 package com.IS.marisqueria3.vista.IAdministradorC;
 
 import com.IS.marisqueria3.model.Ingrediente;
-import javax.swing.JCheckBox;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 /**
@@ -21,7 +19,7 @@ public class DatosTablaInventario1 {
     private int stockDisponible;
     private String unidadMedida;
     private float precio;
-    private int sp;
+    private JSpinner spinner;
     
 
     public DatosTablaInventario1(Ingrediente t) {
@@ -30,7 +28,7 @@ public class DatosTablaInventario1 {
         stockDisponible=t.getStockDisponible();
         unidadMedida=t.getUnidadMedida();
         precio= t.getPrecioUnitario();
-        sp=0;
+        spinner = new JSpinner(new SpinnerNumberModel(0, -1000, 1000, 1));
      
     }
     
@@ -82,14 +80,10 @@ public class DatosTablaInventario1 {
         this.unidadMedida = unidadMedida;
     }
     
-    public int getSpinnerValue() {
-        return sp;
-    }
 
-    public void setSpinnerValue(int value) {
-        this.sp = value;
+    public JSpinner getSpinner() {
+        return spinner;
     }
-    
     
 
 

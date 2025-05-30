@@ -6,23 +6,28 @@ package com.IS.marisqueria3.model.MTablas;
 
 import com.IS.marisqueria3.services.OrdenCompraService;
 import com.IS.marisqueria3.model.Ingrediente;
+import com.IS.marisqueria3.services.ProductoService;
 import com.IS.marisqueria3.vista.IAdministradorC.DatosTablaInventario1;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 
 /**
  *
  * @author ambro
- */public class TMInventario extends AbstractTableModel{
- private List<DatosTablaInventario1> datosIngredientes;
-    OrdenCompraService ordenS;
-    String encabezado[]={"Nombre","Stock mínimo","Stock actual","Unidad M","Precio x Unidad","Ingresar/Merma"};
-    Class clasesC[]={String.class,Integer.class,Integer.class,String.class,Float.class,Integer.class};
+ */
+public class TMInventario extends AbstractTableModel{
+    private List<DatosTablaInventario1> datosIngredientes;
+    private OrdenCompraService ordenS;
+    private ProductoService productoS;
+    private String encabezado[]={"Nombre","Stock mínimo","Stock actual","Unidad M","Precio x Unidad","Ingresar/Merma"};
+    private Class clasesC[]={String.class,Integer.class,Integer.class,String.class,Float.class,Integer.class};
     
     public TMInventario(List<DatosTablaInventario1> mtc){
         datosIngredientes=mtc;
         ordenS= new OrdenCompraService();
+        productoS= new ProductoService();
     }
     @Override
     public boolean isCellEditable(int r, int c){
@@ -64,7 +69,7 @@ import javax.swing.JOptionPane;
             case 2: return datosIngredientes.get(row).getStockDisponible();
             case 3: return datosIngredientes.get(row).getUnidadMedida();
             case 4: return datosIngredientes.get(row).getPrecio();
-            case 5: return datosIngredientes.get(row).getSpinnerValue();
+            case 5: return datosIngredientes.get(row).getSpinner();
             default: return null;
         }
         
@@ -95,9 +100,32 @@ import javax.swing.JOptionPane;
                     ing.setPrecioUnitario(Float.parseFloat(dato.toString()));
                     break;
                 case 5:
-                    if (dato instanceof Integer) {
-                        datosIngredientes.get(r).setSpinnerValue((Integer) dato);
-                    }
+                    try {
+
+                // Manejar cambios en el spinner
+                JSpinner spinner = (JSpinner) dato;
+                int cambio = (Integer) spinner.getValue();
+                
+                // Calcular nuevo stock
+                int nuevoStock = datoFila.getStockDisponible() + cambio;
+                
+                // Actualizar datos
+                datoFila.setStockDisponible(nuevoStock);
+                ing.setStockDisponible(nuevoStock);
+                
+                // Actualizar base de datos
+                productoS.actualizarStockIngrediente(ing.getIngredienteId(), nuevoStock);
+                
+                // Resetear spinner
+                spinner.setValue(0);
+                
+                // Notificar cambios
+                fireTableCellUpdated(r, 2);  // Actualizar columna de stock
+            
+            // ... manejo de otras columnas ...
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
                     break;
                 
                     // Si quieres establecer el valor del spinner desde la tabla:
@@ -107,6 +135,8 @@ import javax.swing.JOptionPane;
         JOptionPane.showMessageDialog(null, "Valor numérico inválido");
     }
     }
+    
+    
     
     
 }

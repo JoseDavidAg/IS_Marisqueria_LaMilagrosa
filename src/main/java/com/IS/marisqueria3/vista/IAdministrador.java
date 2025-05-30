@@ -4,28 +4,43 @@
  */
 package com.IS.marisqueria3.vista;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelEditarIngrediente;
+import com.IS.marisqueria3.vista.IAdministradorC.PanelInventario;
 
 public class IAdministrador extends javax.swing.JFrame {
     private final PanelEditarIngrediente panelEIngrediente;
+    private final PanelInventario panelInventarioIngrediente;
     //ingredientes GUI
     
 
     public IAdministrador() {
-        panelEIngrediente= new PanelEditarIngrediente();
+
         initComponents();
+        panelEIngrediente= new PanelEditarIngrediente();
+        panelInventarioIngrediente= new PanelInventario();
         cargarIngredientesInventario();
-        
+        cargarIngredientesEditar();
         
     }
     
    
 
      //Ingrediente Inventario
-     public void cargarIngredientesInventario(){
+     public void cargarIngredientesEditar(){
         panelEIngrediente.setVisible(true);
         panelEIngrediente.setLocation(0,0);
         ingrediente1Panel.add(panelEIngrediente);
+        repaint();
      }
+     
+    public void cargarIngredientesInventario(){
+        panelInventarioIngrediente.setVisible(true);
+        panelInventarioIngrediente.setLocation(0,0);
+        ingrediente2Panel.add(panelInventarioIngrediente);
+        
+        repaint();
+    }
+    
+     
      
      
 
@@ -914,18 +929,7 @@ public class IAdministrador extends javax.swing.JFrame {
         jTabbedPanel.addTab("Reportes", reportesPanel);
 
         ingrediente2Panel.setBackground(new java.awt.Color(255, 255, 255));
-
-        javax.swing.GroupLayout ingrediente2PanelLayout = new javax.swing.GroupLayout(ingrediente2Panel);
-        ingrediente2Panel.setLayout(ingrediente2PanelLayout);
-        ingrediente2PanelLayout.setHorizontalGroup(
-            ingrediente2PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 982, Short.MAX_VALUE)
-        );
-        ingrediente2PanelLayout.setVerticalGroup(
-            ingrediente2PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 791, Short.MAX_VALUE)
-        );
-
+        ingrediente2Panel.setLayout(new java.awt.BorderLayout());
         jScrollPane2.setViewportView(ingrediente2Panel);
 
         jTabbedPane2.addTab("Actualizar Inventario", jScrollPane2);
