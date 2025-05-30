@@ -50,7 +50,13 @@ public class ItemPedido implements Serializable {
     public ItemPedido(ItemPedidoPK itemPedidoPK) {
         this.itemPedidoPK = itemPedidoPK;
     }
-
+    
+    public ItemPedido(Producto producto, int cantidad, String descripcion) {
+        this.producto = producto;
+        this.cantidad = cantidad;
+        this.descripcion = descripcion;
+    }
+    
     public ItemPedido(int pedidoNumero, int idProducto) {
         this.itemPedidoPK = new ItemPedidoPK(pedidoNumero, idProducto);
     }

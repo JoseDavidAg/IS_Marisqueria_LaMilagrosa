@@ -53,8 +53,9 @@ public class IMesero extends javax.swing.JFrame {
         panelPedidoIM.setPedidoListener(new PanelPedidoIM.PedidoListener() {
             @Override
             public void onPedidoConfirmado(Pedido pedido, int mesa) {
-                pedidoS.crearPedido(pedido);
                 pedidosPorMesa.put(mesa, pedido);
+                pedidoS.crearPedido(pedido);
+                
             }
             
     @Override

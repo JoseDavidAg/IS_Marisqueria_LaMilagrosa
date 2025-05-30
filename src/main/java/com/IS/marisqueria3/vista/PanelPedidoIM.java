@@ -33,10 +33,13 @@ public class PanelPedidoIM extends JPanel {
     private PedidoListener listener;
     private int mesaActual;
 
+
     public interface PedidoListener {
         void onPedidoConfirmado(Pedido pedido, int mesa);
         void onActualizarEstadoMesa(int mesa, String estado, double total);
     }
+    
+    
 
     public PanelPedidoIM() {
         clienteS= new ClienteMesaService();
@@ -84,11 +87,10 @@ public class PanelPedidoIM extends JPanel {
     add(btnConfirmar, BorderLayout.EAST);
 }
 
-    // En PanelPedidoIM.java
-        public void agregarItem(Producto producto) {
-            if (producto == null) return;
 
-            // Diálogo para descripción
+    public void agregarItem(Producto producto) {
+        if (producto == null) return;
+// Diálogo para descripción
             String descripcion = JOptionPane.showInputDialog(
                 SwingUtilities.getRoot(this), 
                 "Ingrese descripción para " + producto.getNombre(),
@@ -99,19 +101,19 @@ public class PanelPedidoIM extends JPanel {
 
             if (descripcion == null) return; // Si el usuario cancela
 
-            // Crear ítem con descripción
-            ItemPedido nuevoItem = new ItemPedido();
-            nuevoItem.setProducto(producto);
-            nuevoItem.setCantidad(1);
-            nuevoItem.setDescripcion(descripcion);
-            
-            // Actualizar modelo y forzar repintado
-            listModel.addElement(nuevoItem);
-            listaItems.setModel(listModel); // Refrescar modelo
-            listaItems.repaint(); // Actualizar visualmente
-            System.out.println("[DEBUG] Items en lista: " + listModel.size()); 
-            actualizarTotal();
-        }
+             // Crear ítem con descripción
+        ItemPedido nuevoItem = new ItemPedido();
+        nuevoItem.setProducto(producto);
+        nuevoItem.setCantidad(1);
+        nuevoItem.setDescripcion(descripcion);
+   
+        // Actualizar modelo y forzar repintado
+        listModel.addElement(nuevoItem);
+        listaItems.setModel(listModel); // Refrescar modelo
+        listaItems.repaint(); // Actualizar visualmente
+        System.out.println("[DEBUG] Items en lista: " + listModel.size());
+        actualizarTotal();
+     }
 
 
    private void actualizarTotal() {
@@ -123,64 +125,67 @@ public class PanelPedidoIM extends JPanel {
     }
 
     public void confirmarPedido() {
-        EntityManager em = pedidoS.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+    EntityManager em = pedidoS.getEntityManager();
+    EntityTransaction tx = em.getTransaction();
 
-        try {
-            tx.begin();
+    try {
+        tx.begin();
 
-            // 1. Persistir cliente
-            Cliente cliente = new Cliente();
-            cliente.setNombre(txtCliente.getText().trim());
-            em.persist(cliente);
+        // 1. Persistir cliente
+        Cliente cliente = new Cliente();
+        cliente.setNombre(txtCliente.getText().trim());
+        em.persist(cliente);
+        em.flush(); // Forzar generación de ID para cliente
 
-            // 2. Persistir pedido (genera ID automático)
-            Pedido pedido = new Pedido();
-            pedido.setClienteId(cliente);
-            em.persist(pedido);
- System.out.println(cliente.getIdCliente());           
-System.out.println(pedido.getNumeroPedido());
-            // 3. Persistir ítems (usando cascade)
-            List<ItemPedido> items = Collections.list(listModel.elements());
-            for (ItemPedido item : items) {
-                item.setPedido(pedido);
-                em.persist(item);
-                System.out.println(item.getPedido());
-            }
+        // 2. Persistir pedido
+        Pedido pedido = new Pedido();
+        pedido.setClienteId(cliente);
+        pedido.setFechaGeneracion(new Date());
+        pedido.setEstado("PENDIENTE");
+        pedido.setTipoPedido("MESA");
+        em.persist(pedido);
+        em.flush(); // ✅ CRÍTICO: Forzar generación de ID para pedido
 
-            tx.commit(); // ✅ Se genera el ID aquí
+        // 3. Verificar que el ID del pedido se generó
+        if (pedido.getNumeroPedido() == null) {
+            throw new IllegalStateException("El ID del pedido no se generó");
+        }
 
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            // Manejar error
-        } finally {
+        // 4. Persistir ítems usando ID real del pedido
+        List<ItemPedido> items = Collections.list(listModel.elements());
+        for (ItemPedido item : items) {
+            // Crear PK con ID real
+            ItemPedidoPK realPK = new ItemPedidoPK();
+            realPK.setPedidoNumero(pedido.getNumeroPedido());
+            realPK.setIdProducto(item.getProducto().getIdPlatillo());
+            
+            item.setItemPedidoPK(realPK);
+            item.setPedido(pedido);
+            
+            em.persist(item);
+        }
+
+        tx.commit();
+
+        // 5. Actualizar UI y estado
+        //actualizarEstadoMesa(calcularTotal(items), cliente.getNombre());
+        
+        if (listener != null) {
+            listener.onPedidoConfirmado(pedido, mesaActual);
+        }
+
+        resetearFormulario();
+
+    } catch (Exception e) {
+        if (tx != null && tx.isActive()) tx.rollback();
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    } finally {
+        if (em != null && em.isOpen()) {
             em.close();
         }
     }
-
-private float calcularTotal(List<ItemPedido> items) {
-    if (items == null || items.isEmpty()) {
-        return 0.0f; // Manejo de lista nula o vacía
-    }
-
-    return items.stream()
-        .map(item -> { 
-            float precio = item.getProducto().getPrecioVenta(); // Asume que getPrecioVenta() retorna float
-            float cantidad = item.getCantidad(); // Asume que getCantidad() retorna float (o int)
-            return precio * cantidad;
-        })
-        .reduce(0.0f, Float::sum); // Suma todos los elementos
 }
-    private void actualizarEstadoMesa(float total, String nombreCliente) {
-        if (listener != null) {
-            String estado = "Ocupado - " + nombreCliente;
-            listener.onActualizarEstadoMesa(
-                mesaActual, 
-                estado,
-                total // Ya es float, no necesita conversión
-            );
-        }
-    }
 
     public void setMesaActual(int mesa) {
         this.mesaActual = mesa;
