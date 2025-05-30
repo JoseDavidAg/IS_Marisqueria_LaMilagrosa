@@ -13,6 +13,7 @@ import com.IS.marisqueria3.persistence.IngredienteJpaController;
 import com.IS.marisqueria3.persistence.ProductoIngredienteJpaController;
 import com.IS.marisqueria3.persistence.ProductoJpaController;
 import java.util.List;
+import javax.persistence.EntityNotFoundException;
 /**
  *
  * @author ambro
@@ -76,4 +77,15 @@ public class ProductoService {
         return proIngredienteJpa.findByProductoId(idProducto);
     }
     
+  public void actualizarStockIngrediente(int idIngrediente, int nuevoStock) {
+    try {
+        Ingrediente ingrediente = ingredientesJpa.findIngrediente(idIngrediente);
+            
+        
+        ingrediente.setStockDisponible(nuevoStock);
+        ingredientesJpa.edit(ingrediente);
+    } catch (Exception e) {
+        throw new RuntimeException("Error al actualizar stock", e);
+    }
+} 
 }

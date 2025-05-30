@@ -20,7 +20,8 @@ public class DatosTablaInventario1 {
     private int stockMinimo;
     private int stockDisponible;
     private String unidadMedida;
-    private JSpinner sp;
+    private float precio;
+    private int sp;
     
 
     public DatosTablaInventario1(Ingrediente t) {
@@ -28,7 +29,8 @@ public class DatosTablaInventario1 {
         stockMinimo= t.getStockMinimo();
         stockDisponible=t.getStockDisponible();
         unidadMedida=t.getUnidadMedida();
-        this.sp = new JSpinner(new SpinnerNumberModel(0, -100, 1000, 1));
+        precio= t.getPrecioUnitario();
+        sp=0;
      
     }
     
@@ -46,7 +48,16 @@ public class DatosTablaInventario1 {
     public String getNombre(){
         return t.getNombre();
     }
-   
+
+    public float getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(float precio) {
+        this.precio = precio;
+    }
+    
+    
     public int getStockMinimo() {
         return stockMinimo;
     }
@@ -70,24 +81,17 @@ public class DatosTablaInventario1 {
     public void setUnidadMedida(String unidadMedida) {
         this.unidadMedida = unidadMedida;
     }
-
-    public JSpinner getSpinner() {
+    
+    public int getSpinnerValue() {
         return sp;
     }
 
-    public void setSpinner(JSpinner sp) {
-        this.sp = sp;
+    public void setSpinnerValue(int value) {
+        this.sp = value;
     }
     
-    public int getCantidad() {
-        Object val = sp.getValue();
-        if (val instanceof Integer) {
-            return (Integer) val;
-        }
-        return 0;
-    }
+    
+
 
  
 }
-
-

@@ -12,6 +12,7 @@ C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\services\ProductoService.j
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\Producto.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\ItemOrdenCompraJpaController.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\CategoriaCartaJpaController.java
+C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\vista\IAdministradorC\DatosTablaInventario1.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\ItemPedidoPK.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\ProductoJpaController.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\OrdenCompraJpaController.java
@@ -23,6 +24,7 @@ C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\Proveedor.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\Ticket.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\CategoriaCarta.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\MTablas\TMInventario.java
+C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\JPAUtil.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\services\PedidoService.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\vista\IAdministradorC\PanelEditarIngrediente.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\exceptions\NonexistentEntityException.java
@@ -39,6 +41,7 @@ C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\exceptions\Ill
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\ProveedorJpaController.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\Cliente.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\vista\CardProducto.java
+C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\vista\IAdministradorC\PanelInventario.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\UsuarioJpaController.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\model\ItemPedido.java
 C:\ITO\Marisqueria3\src\main\java\com\IS\marisqueria3\persistence\ItemPedidoJpaController.java

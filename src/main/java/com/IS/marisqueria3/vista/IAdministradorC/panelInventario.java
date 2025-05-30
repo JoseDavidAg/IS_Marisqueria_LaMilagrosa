@@ -4,135 +4,157 @@
  */
 package com.IS.marisqueria3.vista.IAdministradorC; 
 
-import com.IS.marisqueria3.model.CategoriaCarta;
 import com.IS.marisqueria3.model.Ingrediente;
-import com.IS.marisqueria3.model.MTablas.TMIngrediente;
-import com.IS.marisqueria3.model.Proveedor;
-import com.IS.marisqueria3.services.OrdenCompraService;
+import com.IS.marisqueria3.model.MTablas.TMInventario;
 import com.IS.marisqueria3.services.ProductoService;
-import com.IS.marisqueria3.vista.IAdministrador;
+import com.IS.marisqueria3.services.OrdenCompraService;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.AbstractCellEditor;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-
-
-
-public class panelInventario extends javax.swing.JPanel {
+public class PanelInventario extends javax.swing.JPanel {
       
-    TMIngrediente tablaIngrediente;
+    TMInventario tablaIngrediente;
     ProductoService productoS;
-    OrdenCompraService compraS;
-    List<CategoriaCarta>categorias;
+    List<DatosTablaInventario1> datosI;
     
-    
-    public panelInventario() {
-        //ingredientes GUI
-        compraS= new OrdenCompraService();
-        productoS= new ProductoService();
+    public PanelInventario() {
+        productoS = new ProductoService();
         initComponents();
         cargarIngredientesEditar();
-        
     }
     
-     //ingredientes GUI
-    public void cargarIngredientesEditar(){
+    public void cargarIngredientesEditar() {
+        datosI = new ArrayList<>();
+        List<Ingrediente> ingredientes = productoS.listarIngredientes();
         
-        List<Ingrediente> ingredientes = new ArrayList<>();
-        List<Proveedor> proveedores = new ArrayList<>();
-        proveedores= compraS.listarProveedores();
-        
-        cargarUnidadMedida();
-        cargarProveedores(proveedores);
-        
-        ingredientes= productoS.listarIngredientes();
-        
-
-      
-      tablaIngrediente= new TMIngrediente(ingredientes);
-      for{
-      ingredientesTabla1.setModel(tablaIngrediente);
-      }
-       repaint();
-        
-    }
-    
-
-    public void cargarUnidadMedida(){
-
-        cbUnidadMedida.removeAllItems();
-        String[]uni= {"kg","l","ml","piezas"};
-        for(String t:uni){
-            cbUnidadMedida.addItem(t);     
-        }   
-    }
-    public void cargarProveedores(List<Proveedor>p){ 
-        cbProveedores.removeAllItems();
-        for(Proveedor t:p){
-            System.out.println(t.getNombre());     
-        } 
-        for(Proveedor t:p){
-            cbProveedores.addItem(t.getNombre());     
-        }   
-    }
-    
-    public void crearIngrediente() {
-    try {
-        // Validación de campos vacíos
-        String nombre = txtNombreIngrediente.getText().trim();
-        String descripcion = txtProductoDescripcion.getText().trim();
-        String precioStr = txtPrecio.getText().trim();
-        String stockStr = txtStock.getText().trim();
-        String unidad = (String) cbUnidadMedida.getSelectedItem();
-        String proveedorNombre = (String) cbProveedores.getSelectedItem();
-
-        if (nombre.isEmpty() || descripcion.isEmpty() || precioStr.isEmpty() || stockStr.isEmpty() || unidad == null || proveedorNombre == null) {
-            JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
+        for (Ingrediente i : ingredientes) {
+            datosI.add(new DatosTablaInventario1(i));
         }
         
-        float precio;
-        int stockMinimo;
-        try {
-            precio = Float.parseFloat(precioStr);
-            stockMinimo = Integer.parseInt(stockStr);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Precio y stock deben ser valores numéricos válidos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        tablaIngrediente = new TMInventario(datosI);
+        ingredientesTabla2.setModel(tablaIngrediente);
+        
+        // Configurar spinner
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(0, -1000, 1000, 1);
+        TableColumn spinnerColumn = ingredientesTabla2.getColumnModel().getColumn(5);
+        spinnerColumn.setCellEditor(new SpinnerEditor(spinnerModel));
+        spinnerColumn.setCellRenderer(new SpinnerRenderer(spinnerModel));
+        
+        // Ajustar anchos de columnas
+        ajustarAnchosColumnas();
+        
+        // Actualizar UI
+        ingredientesTabla2.revalidate();
+        ingredientesTabla2.repaint();
+    }
+    
+    private void ajustarAnchosColumnas() {
+        TableColumnModel columnModel = ingredientesTabla2.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(150); // Nombre
+        columnModel.getColumn(1).setPreferredWidth(100); // Stock mínimo
+        columnModel.getColumn(2).setPreferredWidth(100); // Stock actual
+        columnModel.getColumn(3).setPreferredWidth(80);  // Unidad M
+        columnModel.getColumn(4).setPreferredWidth(120); // Precio x Unidad
+        columnModel.getColumn(5).setPreferredWidth(150); // Ingresar/Merma
+    }
+    
+    class SpinnerEditor extends AbstractCellEditor implements TableCellEditor {
+        private final JSpinner spinner;
+
+        public SpinnerEditor(SpinnerModel model) {
+            spinner = new JSpinner(model);
+            
+            // Actualizar stock cuando se cambia el valor
+            spinner.addChangeListener(e -> {
+                int row = ingredientesTabla2.getEditingRow();
+                if (row >= 0) {
+                    // Obtener el nuevo valor del spinner
+                    int cambio = (Integer) spinner.getValue();
+                    
+                    // Obtener los datos de la fila
+                    DatosTablaInventario1 datoFila = datosI.get(row);
+                    
+                    // Calcular nuevo stock
+                    int nuevoStock = datoFila.getStockDisponible() + cambio;
+                    
+                    // Actualizar los datos
+                    datoFila.setStockDisponible(nuevoStock);
+                    datoFila.getT().setStockDisponible(nuevoStock);
+                    
+                    // Actualizar la tabla
+                    tablaIngrediente.fireTableCellUpdated(row, 2); // Columna de stock actual
+                    
+                    // Resetear el spinner a 0 después del cambio
+                    spinner.setValue(0);
+                    
+                    // Actualizar en la base de datos
+                    actualizarStockEnBaseDatos(datoFila.getT(), nuevoStock);
+                }
+            });
         }
 
-        // Crear objeto Ingrediente
-        Ingrediente in = new Ingrediente();
-        in.setNombre(nombre);
-        in.setDescripcion(descripcion);
-        in.setPrecioUnitario(precio);
-        in.setStockMinimo(stockMinimo);
-        in.setUnidadMedida(unidad);
-        in.setStockDisponible(0);
-        in.setProveedorId(compraS.listarProveedoresNombre(proveedorNombre));
+        @Override
+        public Object getCellEditorValue() {
+            return spinner.getValue();
+        }
 
-        // Guardar en base de datos
-        productoS.crearIngrediente(in);
-        JOptionPane.showMessageDialog(this, "Ingrediente registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            limpiarCamposIngrediente();
-            cargarIngredientesEditar(); // Refrescar tabla
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, 
+                boolean isSelected, int row, int column) {
+            spinner.setValue(value != null ? value : 0);
+            return spinner;
+        }
         
+        private void actualizarStockEnBaseDatos(Ingrediente ingrediente, int nuevoStock) {
+            try {
+                // Actualizar el stock en la base de datos
+                productoS.actualizarStockIngrediente(ingrediente.getIngredienteId(), nuevoStock);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(PanelInventario.this, 
+                    "Error al actualizar stock: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al registrar ingrediente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        Logger.getLogger(IAdministrador.class.getName()).log(Level.SEVERE, null, e);
+    class SpinnerRenderer extends JSpinner implements TableCellRenderer {
+        public SpinnerRenderer(SpinnerModel model) {
+            super(model);
+            setOpaque(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            setValue(value != null ? value : 0);
+            
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                setForeground(table.getSelectionForeground());
+            } else {
+                setBackground(table.getBackground());
+                setForeground(table.getForeground());
+            }
+            
+            return this;
+        }
     }
-}
-     public void limpiarCamposIngrediente() {
-        txtNombreIngrediente.setText("");
-        txtProductoDescripcion.setText("");
-        txtPrecio.setText("");
-        txtStock.setText("");
-        cbUnidadMedida.setSelectedIndex(0);
-        cbProveedores.setSelectedIndex(0);
-    }
+    
+    // ... El resto de tu código (TMInventario, etc) ...
+
+
+
     
     /**
      * This method is called from within the constructor to initialize the form.

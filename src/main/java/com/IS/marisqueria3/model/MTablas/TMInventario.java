@@ -6,6 +6,7 @@ package com.IS.marisqueria3.model.MTablas;
 
 import com.IS.marisqueria3.services.OrdenCompraService;
 import com.IS.marisqueria3.model.Ingrediente;
+import com.IS.marisqueria3.vista.IAdministradorC.DatosTablaInventario1;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -13,27 +14,26 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author ambro
- */
-public class TMInventario extends AbstractTableModel{
- private List<Ingrediente> datosIngredientes;
+ */public class TMInventario extends AbstractTableModel{
+ private List<DatosTablaInventario1> datosIngredientes;
     OrdenCompraService ordenS;
-    String encabezado[]={"Nombre","Stock mínimo","Stock actual","Precio x Unidad","Ingresar/Merma"};
-    Class clasesC[]={String.class,Integer.class,Integer.class,Float.class,Integer.class,String.class,String.class};
+    String encabezado[]={"Nombre","Stock mínimo","Stock actual","Unidad M","Precio x Unidad","Ingresar/Merma"};
+    Class clasesC[]={String.class,Integer.class,Integer.class,String.class,Float.class,Integer.class};
     
-    public TMInventario(List<Ingrediente> mtc){
+    public TMInventario(List<DatosTablaInventario1> mtc){
         datosIngredientes=mtc;
         ordenS= new OrdenCompraService();
     }
     @Override
     public boolean isCellEditable(int r, int c){
-        if(c==0)return true;
-        if(c==1)return true;
-        if(c==2)return true;
-        if(c==3)return true;
-        if(c==4)return false;
-        if(c==5)return false;
-        if(c==6)return true;
-        return c==7;
+        if(c==0)return false;
+        if(c==1)return false;
+        if(c==2)return false;
+        if(c==3)return false;
+        if (c==4) return false;
+        return c==5;
+
+
     }
     
     @Override
@@ -59,37 +59,55 @@ public class TMInventario extends AbstractTableModel{
     @Override
     public Object getValueAt(int row, int column) {
         switch(column){
-            case 0: return datosIngredientes.get(row).getNombre();
-            case 1: return datosIngredientes.get(row).getDescripcion();
-            case 2: return datosIngredientes.get(row).getPrecioUnitario();
-            case 3: return datosIngredientes.get(row).getStockMinimo();
-            case 4: return datosIngredientes.get(row).getStockDisponible();
-            case 5: return datosIngredientes.get(row).getUnidadMedida();
-            case 6: return (datosIngredientes.get(row).getIngredienteId()==null)?datosIngredientes.get(row).getProveedorId().getNombre():"No hay";
+            case 0: return datosIngredientes.get(row).getT().getNombre();
+            case 1: return datosIngredientes.get(row).getStockMinimo();
+            case 2: return datosIngredientes.get(row).getStockDisponible();
+            case 3: return datosIngredientes.get(row).getUnidadMedida();
+            case 4: return datosIngredientes.get(row).getPrecio();
+            case 5: return datosIngredientes.get(row).getSpinnerValue();
             default: return null;
         }
+        
     }
     
-    @Override
+    @Override    
     public void setValueAt(Object dato, int r, int c) {
-        Ingrediente ing = datosIngredientes.get(r);
+        DatosTablaInventario1 datoFila = datosIngredientes.get(r);
+        Ingrediente ing = datoFila.getT();
         try {
-            switch(c) {
-                case 1: ing.setDescripcion((String) dato); break;
-                case 2: ing.setPrecioUnitario(Float.parseFloat(dato.toString())); break;
-                case 3: ing.setStockMinimo(Integer.valueOf(dato.toString())); break;
-                case 4: ing.setStockDisponible(Integer.valueOf(dato.toString())); break;
-                case 6: if(ing.getProveedorId()!=null){
-                    ing.setProveedorId(ordenS.listarProveedoresNombre(dato.toString()));
-                }else ing.setProveedorId(null);
-                  
+            switch (c) {
+                case 0:
+                    ing.setNombre(dato.toString());
                     break;
+                case 1:
+                    ing.setStockMinimo(Integer.valueOf(dato.toString()));
+                    datoFila.setStockMinimo(ing.getStockMinimo());
+                    break;
+                case 2:
+                    ing.setStockDisponible(Integer.valueOf(dato.toString()));
+                    datoFila.setStockDisponible(ing.getStockDisponible());
+                    break;
+                case 3:
+                    ing.setUnidadMedida(dato.toString());
+                    datoFila.setUnidadMedida(ing.getUnidadMedida());
+                    break;
+                case 4:
+                    ing.setPrecioUnitario(Float.parseFloat(dato.toString()));
+                    break;
+                case 5:
+                    if (dato instanceof Integer) {
+                        datosIngredientes.get(r).setSpinnerValue((Integer) dato);
+                    }
+                    break;
+                
+                    // Si quieres establecer el valor del spinner desde la tabla:
             }
-            fireTableCellUpdated(r, c); // Notificar actualización
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Valor numérico inválido");
-        }
+        fireTableCellUpdated(r, c); // Notificar que la celda se actualizó
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(null, "Valor numérico inválido");
+    }
     }
     
     
 }
+
