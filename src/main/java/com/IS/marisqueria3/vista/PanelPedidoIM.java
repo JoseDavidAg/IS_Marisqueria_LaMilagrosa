@@ -36,7 +36,7 @@ public class PanelPedidoIM extends JPanel {
 
     public interface PedidoListener {
         void onPedidoConfirmado(Pedido pedido, int mesa);
-        void onActualizarEstadoMesa(int mesa, String estado, double total);
+        void onActualizarEstadoMesa(int mesa, String estado, float total);
     }
     
     
@@ -141,10 +141,11 @@ public class PanelPedidoIM extends JPanel {
         Pedido pedido = new Pedido();
         pedido.setClienteId(cliente);
         pedido.setFechaGeneracion(new Date());
-        pedido.setEstado("PENDIENTE");
-        pedido.setTipoPedido("MESA");
+        pedido.setEstado("pendiente");
+        pedido.setTipoPedido("local");
+        pedido.setEsUrgente(false);
         em.persist(pedido);
-        em.flush(); // ✅ CRÍTICO: Forzar generación de ID para pedido
+        em.flush(); 
 
         // 3. Verificar que el ID del pedido se generó
         if (pedido.getNumeroPedido() == null) {
@@ -168,13 +169,15 @@ public class PanelPedidoIM extends JPanel {
         tx.commit();
 
         // 5. Actualizar UI y estado
-        //actualizarEstadoMesa(calcularTotal(items), cliente.getNombre());
-        
-        if (listener != null) {
-            listener.onPedidoConfirmado(pedido, mesaActual);
-        }
-
-        resetearFormulario();
+    float totalCalculado = calcularTotal();
+    actualizarEstadoMesa(totalCalculado, "ocupado");
+    
+    // Notificar al listener
+    if (listener != null) {
+        listener.onActualizarEstadoMesa(mesaActual, "Ocupado - " + cliente.getNombre(), totalCalculado);
+    }
+    
+    resetearFormulario();
 
     } catch (Exception e) {
         if (tx != null && tx.isActive()) tx.rollback();
@@ -186,6 +189,20 @@ public class PanelPedidoIM extends JPanel {
         }
     }
 }
+    
+    private void actualizarEstadoMesa(float total, String nombreCliente) {
+        if (listener != null) {
+            String estado = "Ocupado - " + nombreCliente;
+            listener.onActualizarEstadoMesa(mesaActual, estado, total);
+        }
+    }
+    private float calcularTotal() {
+        float total = Collections.list(listModel.elements()).stream()
+            .map(item -> item.getProducto().getPrecioVenta() * item.getCantidad()) // Multiplicación directa de floats
+            .reduce(0.0f, Float::sum); // Suma todos los floats
+
+        return total;
+    }
 
     public void setMesaActual(int mesa) {
         this.mesaActual = mesa;

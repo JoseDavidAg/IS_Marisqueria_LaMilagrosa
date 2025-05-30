@@ -55,41 +55,40 @@ public class IMesero extends javax.swing.JFrame {
             public void onPedidoConfirmado(Pedido pedido, int mesa) {
                 pedidosPorMesa.put(mesa, pedido);
                 pedidoS.crearPedido(pedido);
-                
             }
-            
-    @Override
-    public void onActualizarEstadoMesa(int mesa, String estado, double total) {
-    
-        
+
+            @Override
+            public void onActualizarEstadoMesa(int mesa, String estado, float total) {
                 try {
-                    clienteS.actualizarEstadoMesa(mesa, estado); // Actualiza la base de datos
+                    // Actualizar base de datos
+                    clienteS.actualizarEstadoMesa(mesa, estado);
+                    
+                    // Actualizar UI
+                    actualizarEstadoMesa(mesa, estado, total);
                 } catch (Exception ex) {
                     Logger.getLogger(IMesero.class.getName()).log(Level.SEVERE, null, ex);
                 }
-        actualizarEstadoMesa(mesa, estado, total); // Actualiza la UI
-    }
+            }
         });
-        pedidoItemPanel.removeAll(); // Limpiar contenido previo
-        pedidoItemPanel.add(panelPedidoIM, BorderLayout.CENTER); // Añadir al layout
-        pedidoItemPanel.revalidate(); // Forzar actualización
+        pedidoItemPanel.removeAll();
+        pedidoItemPanel.add(panelPedidoIM, BorderLayout.CENTER);
+        pedidoItemPanel.revalidate();
     }
-    // Método para manejar clic en botones de mesa
-
-
-    private void actualizarEstadoMesa(int mesa, String estado, double total) {
+    
+    // Cambiar el tipo de parámetro a float
+    private void actualizarEstadoMesa(int mesa, String estado, float total) {
         JToggleButton boton = switch (mesa) {
             case 1 -> bttMesa1;
             case 2 -> bttMesa2;
             case 3 -> bttMesa3;
             case 4 -> bttMesa4;
-            case 5->bttMesa5;
-            case 6->bttMesa6;
+            case 5 -> bttMesa5;
+            case 6 -> bttMesa6;
             default -> throw new IllegalArgumentException("Mesa inválida");
         };
         
         boton.setText(String.format("Mesa %d: %s - $%.2f", mesa, estado, total));
-        boton.setForeground(estado.contains("Ocupado") ? Color.RED : Color.BLACK);
+        boton.setForeground(!estado.isEmpty() ? Color.RED : Color.BLACK);
     }
     
     public void cargarMenu(){
@@ -153,6 +152,8 @@ public class IMesero extends javax.swing.JFrame {
         menuPanel = new javax.swing.JPanel();
         pedidoItemPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         jMenu1.setText("jMenu1");
 
@@ -253,21 +254,27 @@ public class IMesero extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jPanel9);
 
+        menuPanel.setBackground(new java.awt.Color(255, 255, 255));
+
         javax.swing.GroupLayout menuPanelLayout = new javax.swing.GroupLayout(menuPanel);
         menuPanel.setLayout(menuPanelLayout);
         menuPanelLayout.setHorizontalGroup(
             menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 789, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         menuPanelLayout.setVerticalGroup(
             menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 310, Short.MAX_VALUE)
+            .addGap(0, 306, Short.MAX_VALUE)
         );
 
         pedidoItemPanel.setBackground(new java.awt.Color(204, 204, 255));
         pedidoItemPanel.setLayout(new java.awt.BorderLayout());
 
         jLabel2.setText("Items Pedido");
+
+        jLabel3.setText("Menu");
+
+        jLabel4.setText("Seguimiento Pedidos");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -281,16 +288,25 @@ public class IMesero extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton1)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(menuPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(pedidoItemPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(menuPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(358, 358, 358)
-                .addComponent(jLabel2)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(388, 388, 388)
+                        .addComponent(jLabel3))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(365, 365, 365)
+                        .addComponent(jLabel2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(368, 368, 368)
+                        .addComponent(jLabel4))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(pedidoItemPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 759, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -301,13 +317,17 @@ public class IMesero extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(57, 57, 57)
+                .addGap(29, 29, 29)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(menuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
+                .addGap(78, 78, 78)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pedidoItemPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 436, Short.MAX_VALUE))
+                .addComponent(pedidoItemPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
+                .addComponent(jLabel4)
+                .addGap(0, 74, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(jPanel1);
@@ -478,6 +498,8 @@ public class IMesero extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
