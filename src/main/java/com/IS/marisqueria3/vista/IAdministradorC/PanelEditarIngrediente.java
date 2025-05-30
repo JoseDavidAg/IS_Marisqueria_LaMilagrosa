@@ -12,7 +12,9 @@ import com.IS.marisqueria3.services.OrdenCompraService;
 import com.IS.marisqueria3.services.ProductoService;
 import com.IS.marisqueria3.vista.IAdministrador;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -22,10 +24,12 @@ import javax.swing.JOptionPane;
 
 public class PanelEditarIngrediente extends javax.swing.JPanel {
       
-    TMIngrediente tablaIngrediente;
-    ProductoService productoS;
-    OrdenCompraService compraS;
-    List<CategoriaCarta>categorias;
+    private  TMIngrediente tablaIngrediente;
+    private ProductoService productoS;
+    private OrdenCompraService compraS;
+    private List<CategoriaCarta>categorias;
+    private Map<String, Proveedor> mapaProveedores = new HashMap<>();
+
     
     
     public PanelEditarIngrediente() {
@@ -42,6 +46,7 @@ public class PanelEditarIngrediente extends javax.swing.JPanel {
         
         List<Ingrediente> ingredientes = new ArrayList<>();
         List<Proveedor> proveedores = new ArrayList<>();
+        
         proveedores= compraS.listarProveedores();
         
         cargarUnidadMedida();
@@ -68,15 +73,16 @@ public class PanelEditarIngrediente extends javax.swing.JPanel {
             cbUnidadMedida.addItem(t);     
         }   
     }
-    public void cargarProveedores(List<Proveedor>p){ 
+    public void cargarProveedores(List<Proveedor> proveedores){ 
         cbProveedores.removeAllItems();
-        for(Proveedor t:p){
-            System.out.println(t.getNombre());     
-        } 
-        for(Proveedor t:p){
-            cbProveedores.addItem(t.getNombre());     
+        mapaProveedores.clear(); 
+
+        for(Proveedor proveedor : proveedores){
+            cbProveedores.addItem(proveedor.getNombre());
+            mapaProveedores.put(proveedor.getNombre(), proveedor); 
         }   
     }
+
     
     public void crearIngrediente() {
     try {
@@ -92,6 +98,13 @@ public class PanelEditarIngrediente extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        Proveedor proveedorSelect = mapaProveedores.get(proveedorNombre);
+        if (proveedorSelect ==null) {
+            JOptionPane.showMessageDialog(this, "Proveedor no válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+
         
         float precio;
         int stockMinimo;
@@ -111,7 +124,7 @@ public class PanelEditarIngrediente extends javax.swing.JPanel {
         in.setStockMinimo(stockMinimo);
         in.setUnidadMedida(unidad);
         in.setStockDisponible(0);
-        in.setProveedorId(compraS.listarProveedoresNombre(proveedorNombre));
+        in.setProveedorId(proveedorSelect);
 
         // Guardar en base de datos
         productoS.crearIngrediente(in);
