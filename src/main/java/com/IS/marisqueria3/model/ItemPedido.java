@@ -50,7 +50,7 @@ public class ItemPedido implements Serializable {
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @Column(name = "precio_unitario")
-    private BigDecimal precioUnitario;
+    private float precioUnitario;
     @Column(name = "descripcion")
     private String descripcion;
     @Column(name = "created_at")
@@ -70,7 +70,7 @@ public class ItemPedido implements Serializable {
         this.idItem = idItem;
     }
 
-    public ItemPedido(Integer idItem, int cantidad, BigDecimal precioUnitario) {
+    public ItemPedido(Integer idItem, int cantidad, float precioUnitario) {
         this.idItem = idItem;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
@@ -92,11 +92,11 @@ public class ItemPedido implements Serializable {
         this.cantidad = cantidad;
     }
 
-    public BigDecimal getPrecioUnitario() {
+    public float getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(BigDecimal precioUnitario) {
+    public void setPrecioUnitario(float precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 

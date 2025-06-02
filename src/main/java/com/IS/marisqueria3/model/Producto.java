@@ -96,6 +96,10 @@ public class Producto implements Serializable {
     public float getPrecioVenta() {
         return precioVenta;
     }
+    
+    public String getCategoriaNombre(){
+        return categoriaId.getNombre();
+    }
 
     public void setPrecioVenta(float precioVenta) {
         this.precioVenta = precioVenta;

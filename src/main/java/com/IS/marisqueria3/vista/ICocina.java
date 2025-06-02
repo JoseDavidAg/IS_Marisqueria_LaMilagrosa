@@ -221,7 +221,7 @@ public class ICocina extends javax.swing.JFrame {
         panelProductos.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         for (ItemPedido item : pedido.getItemPedidoList()) {
-            JLabel lblProducto = new JLabel("🍽️ " + item.getProducto().getNombre() + " × " + item.getCantidad());
+            JLabel lblProducto = new JLabel("🍽️ " + item.getIdProducto().getNombre() + " × " + item.getCantidad());
             lblProducto.setFont(fontGrande);
             lblProducto.setAlignmentX(Component.LEFT_ALIGNMENT);
             lblProducto.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));

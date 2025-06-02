@@ -72,7 +72,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <exec.mainClass>com.IS.marisqueria3.vista</exec.mainClass>
+        <exec.mainClass>com.IS.marisqueria3</exec.mainClass>
     </properties>
     
     

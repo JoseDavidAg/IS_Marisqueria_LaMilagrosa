@@ -79,7 +79,7 @@ public class PanelPedido extends JPanel {
         panelProductos.setBorder(BorderFactory.createTitledBorder("📦 Productos"));
 
         for (ItemPedido item : pedido.getItemPedidoList()) {
-            JLabel lblProducto = new JLabel("🍽 " + item.getProducto().getNombre() + " x" + item.getCantidad());
+            JLabel lblProducto = new JLabel("🍽 " + item.getIdProducto().getNombre() + " x" + item.getCantidad());
             panelProductos.add(lblProducto);
         }
 
