@@ -19,6 +19,7 @@ import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  *
@@ -28,6 +29,9 @@ public class ProductoJpaController implements Serializable {
 
     public ProductoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
+    }
+    public ProductoJpaController(){
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 

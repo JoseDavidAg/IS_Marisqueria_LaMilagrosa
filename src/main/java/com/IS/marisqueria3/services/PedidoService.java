@@ -7,7 +7,6 @@ package com.IS.marisqueria3.services;
 
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.ItemPedido;
-import com.IS.marisqueria3.model.ItemPedidoPK;
 import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.persistence.ItemPedidoJpaController;
 import com.IS.marisqueria3.persistence.PedidoJpaController;
@@ -69,7 +68,7 @@ public class PedidoService {
         itemPedidoJpa.create(itemPedido);
     }
 
-    public void eliminarItemPedido(ItemPedidoPK id) {
+    public void eliminarItemPedido(Integer id) {
         try {
             itemPedidoJpa.destroy(id);
         } catch (Exception e) {

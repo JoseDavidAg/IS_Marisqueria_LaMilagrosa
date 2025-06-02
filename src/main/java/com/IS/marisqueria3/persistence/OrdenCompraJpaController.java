@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  *
@@ -27,6 +28,10 @@ public class OrdenCompraJpaController implements Serializable {
     public OrdenCompraJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
+    public OrdenCompraJpaController(){
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
+    }
+         
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {

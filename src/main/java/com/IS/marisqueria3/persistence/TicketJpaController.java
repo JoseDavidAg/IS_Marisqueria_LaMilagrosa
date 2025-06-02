@@ -15,6 +15,7 @@ import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  *
@@ -24,6 +25,10 @@ public class TicketJpaController implements Serializable {
 
     public TicketJpaController(EntityManagerFactory emf) {
         this.emf = emf;
+    }
+    
+    public TicketJpaController(){
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 

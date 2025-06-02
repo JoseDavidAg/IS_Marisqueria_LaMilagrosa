@@ -10,6 +10,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Cliente;
+import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.Ticket;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,8 @@ import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 /**
  *
@@ -28,6 +31,9 @@ public class PedidoJpaController implements Serializable {
 
     public PedidoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
+    }
+    public PedidoJpaController(){
+        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -264,6 +270,35 @@ public class PedidoJpaController implements Serializable {
             em.close();
         }
     }
+    
+    public List<Pedido> findPedidoEntities(String completado) {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<Pedido> query = em.createQuery(
+                "SELECT u FROM Pedido u WHERE u.estado != :completado", Pedido.class);
+            query.setParameter("completado", completado);
+
+            List<Pedido> resultados = query.getResultList();
+            return resultados;
+        } finally {
+            em.close();
+        }
+    } 
+    
+     public List<Ingrediente> findPedidoIngredientes(int platilloId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT i FROM Ingrediente i JOIN i.productoIngredienteList pi WHERE pi.productoIngredientePK.productoId = :platilloId",
+                Ingrediente.class)
+                .setParameter("platilloId", platilloId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+
 
     public int getPedidoCount() {
         EntityManager em = getEntityManager();
