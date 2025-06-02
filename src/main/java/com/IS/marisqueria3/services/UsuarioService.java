@@ -20,10 +20,7 @@ public class UsuarioService {
         usuarioJpa = new UsuarioJpaController();
     }
     
-    // ----------------------
-    // Métodos para Usuario
-    // ----------------------
-
+    
     public List<Usuario> traerTodosUsuarios() {
         return usuarioJpa.findUsuarioEntities();
     }
@@ -43,6 +40,7 @@ public class UsuarioService {
     public void editarUsuario(Usuario usuario) throws Exception{
         usuarioJpa.edit(usuario);
     }
+    
     public Usuario autenticar(String user, String contraseña) {
         
         Usuario u = usuarioJpa.findUsuarioNombre(user);

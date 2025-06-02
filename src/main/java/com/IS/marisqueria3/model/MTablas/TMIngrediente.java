@@ -11,6 +11,7 @@ package com.IS.marisqueria3.model.MTablas;
 
 import com.IS.marisqueria3.services.OrdenCompraService;
 import com.IS.marisqueria3.model.Ingrediente;
+import com.IS.marisqueria3.model.Proveedor;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -22,7 +23,7 @@ public class TMIngrediente extends AbstractTableModel{
     private List<Ingrediente> datosIngredientes;
     OrdenCompraService ordenS;
     String encabezado[]={"Nombre","Descripcion","$xUnidad","Stock mínimo","Stock disponible","U.Medida","Proveedor"};
-    Class clasesC[]={String.class,String.class,Float.class,Integer.class,Integer.class,String.class,String.class};
+    Class clasesC[]={ String.class,String.class,Float.class,Integer.class,Integer.class,String.class,String.class};
     
     public TMIngrediente(List<Ingrediente> mtc){
         datosIngredientes=mtc;
@@ -36,8 +37,8 @@ public class TMIngrediente extends AbstractTableModel{
         if(c==3)return true;
         if(c==4)return false;
         if(c==5)return false;
-        if(c==6)return true;
-        return c==7;
+        if(c==6)return false;
+        return false;
     }
     
     @Override
@@ -69,7 +70,7 @@ public class TMIngrediente extends AbstractTableModel{
             case 3: return datosIngredientes.get(row).getStockMinimo();
             case 4: return datosIngredientes.get(row).getStockDisponible();
             case 5: return datosIngredientes.get(row).getUnidadMedida();
-            case 6: return (datosIngredientes.get(row).getIngredienteId()==null)?datosIngredientes.get(row).getProveedorId().getNombre():"No hay";
+            case 6: return (datosIngredientes.get(row).getIngredienteId()!=null)?datosIngredientes.get(row).getProveedorId().getNombre():"No hay";
             default: return null;
         }
     }

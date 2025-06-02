@@ -144,11 +144,11 @@ public class ILogging extends javax.swing.JFrame {
         if (usuario != null) {
             sManager.setUsuarioActual(usuario);
             //Segun sus roles
-            if(usuario.getRol().equals("mesero")){
+            if(usuario.getRol().equals("Mesero")){
                 // Abrir ventana principal
                 this.dispose(); // Cerrar login
                 new IMesero().setVisible(true);
-            }else if(usuario.getRol().equals("cocina")){
+            }else if(usuario.getRol().equals("Cocina")){
                 // Abrir ventana principal
                 this.dispose(); // Cerrar login
                 try {
@@ -156,9 +156,18 @@ public class ILogging extends javax.swing.JFrame {
                 } catch (Exception ex) {
                     Logger.getLogger(ILogging.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }else{
+            }else if(usuario.getRol().equals("Administrador")){
+                // Abrir ventana principal
                 this.dispose(); // Cerrar login
-                new IAdministrador().setVisible(true);
+                try {
+                    new IAdministrador().setVisible(true);
+                } catch (Exception ex) {
+                    Logger.getLogger(ILogging.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Sin rol definido", "Error", JOptionPane.ERROR_MESSAGE);
+
             }
             
         
