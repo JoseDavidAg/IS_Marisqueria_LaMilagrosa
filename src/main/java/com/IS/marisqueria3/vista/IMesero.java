@@ -164,7 +164,13 @@ public class IMesero extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jButton1.setText("Salir");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setText("Toma de pedidos");
 
         bttMesas.add(bttMesa1);
@@ -451,6 +457,11 @@ public class IMesero extends javax.swing.JFrame {
         // Actualizar selección visual
         bttMesas.setSelected(bttMesa3.getModel(), true);
     }//GEN-LAST:event_bttMesa3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        this.dispose(); // Cerrar login
+        new ILogging().setVisible(true);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

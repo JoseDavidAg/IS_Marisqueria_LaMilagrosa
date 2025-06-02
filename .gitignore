@@ -1,0 +1,32 @@
+# Compiled class files
+*.class
+
+# NetBeans project files
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.netbeans/
+*.orig
+
+# Maven
+target/
+
+# Logs and generated files
+*.log
+*.tmp
+
+# JAR/WAR files
+*.jar
+*.war
+*.ear
+
+# IDE files
+*.iml
+.idea/
+.vscode/
+
+# Form files (opcional si no quieres versionarlas)
+*.form
+
