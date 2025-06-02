@@ -18,7 +18,6 @@ import com.IS.marisqueria3.persistence.exceptions.PreexistingEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  *
@@ -28,9 +27,6 @@ public class ProductoIngredienteJpaController implements Serializable {
 
     public ProductoIngredienteJpaController(EntityManagerFactory emf) {
         this.emf = emf;
-    }
-    public ProductoIngredienteJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -197,32 +193,6 @@ public class ProductoIngredienteJpaController implements Serializable {
             em.close();
         }
     }
-    
-    public List<ProductoIngrediente> findByProductoId(int productoId) {
-    EntityManager em = getEntityManager();
-    try {
-        return em.createQuery("SELECT p FROM ProductoIngrediente p WHERE p.productoIngredientePK.productoId = :productoId", ProductoIngrediente.class)
-                 .setParameter("productoId", productoId)
-                 .getResultList();
-    } finally {
-        em.close();
-    }
-}
-    public List<Object[]> findStockByProductoId(int productoId) {
-    EntityManager em = getEntityManager();
-    try {
-        return em.createQuery(
-            "SELECT i.stockDisponible, pi.cantidad " +
-            "FROM ProductoIngrediente pi " +
-            "JOIN pi.ingrediente i " +
-            "WHERE pi.producto.idPlatillo = :productoId", Object[].class)
-            .setParameter("productoId", productoId)
-            .getResultList();
-    } finally {
-        em.close();
-    }
-}
-
 
     public int getProductoIngredienteCount() {
         EntityManager em = getEntityManager();

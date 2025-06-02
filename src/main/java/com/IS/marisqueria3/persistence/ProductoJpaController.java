@@ -19,7 +19,6 @@ import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  *
@@ -29,9 +28,6 @@ public class ProductoJpaController implements Serializable {
 
     public ProductoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
-    }
-    public ProductoJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -57,7 +53,7 @@ public class ProductoJpaController implements Serializable {
             }
             List<ItemPedido> attachedItemPedidoList = new ArrayList<ItemPedido>();
             for (ItemPedido itemPedidoListItemPedidoToAttach : producto.getItemPedidoList()) {
-                itemPedidoListItemPedidoToAttach = em.getReference(itemPedidoListItemPedidoToAttach.getClass(), itemPedidoListItemPedidoToAttach.getItemPedidoPK());
+                itemPedidoListItemPedidoToAttach = em.getReference(itemPedidoListItemPedidoToAttach.getClass(), itemPedidoListItemPedidoToAttach.getIdItem());
                 attachedItemPedidoList.add(itemPedidoListItemPedidoToAttach);
             }
             producto.setItemPedidoList(attachedItemPedidoList);
@@ -73,12 +69,12 @@ public class ProductoJpaController implements Serializable {
                 categoriaId = em.merge(categoriaId);
             }
             for (ItemPedido itemPedidoListItemPedido : producto.getItemPedidoList()) {
-                Producto oldProductoOfItemPedidoListItemPedido = itemPedidoListItemPedido.getProducto();
-                itemPedidoListItemPedido.setProducto(producto);
+                Producto oldIdProductoOfItemPedidoListItemPedido = itemPedidoListItemPedido.getIdProducto();
+                itemPedidoListItemPedido.setIdProducto(producto);
                 itemPedidoListItemPedido = em.merge(itemPedidoListItemPedido);
-                if (oldProductoOfItemPedidoListItemPedido != null) {
-                    oldProductoOfItemPedidoListItemPedido.getItemPedidoList().remove(itemPedidoListItemPedido);
-                    oldProductoOfItemPedidoListItemPedido = em.merge(oldProductoOfItemPedidoListItemPedido);
+                if (oldIdProductoOfItemPedidoListItemPedido != null) {
+                    oldIdProductoOfItemPedidoListItemPedido.getItemPedidoList().remove(itemPedidoListItemPedido);
+                    oldIdProductoOfItemPedidoListItemPedido = em.merge(oldIdProductoOfItemPedidoListItemPedido);
                 }
             }
             for (ProductoIngrediente productoIngredienteListProductoIngrediente : producto.getProductoIngredienteList()) {
@@ -116,7 +112,7 @@ public class ProductoJpaController implements Serializable {
                     if (illegalOrphanMessages == null) {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
-                    illegalOrphanMessages.add("You must retain ItemPedido " + itemPedidoListOldItemPedido + " since its producto field is not nullable.");
+                    illegalOrphanMessages.add("You must retain ItemPedido " + itemPedidoListOldItemPedido + " since its idProducto field is not nullable.");
                 }
             }
             for (ProductoIngrediente productoIngredienteListOldProductoIngrediente : productoIngredienteListOld) {
@@ -136,7 +132,7 @@ public class ProductoJpaController implements Serializable {
             }
             List<ItemPedido> attachedItemPedidoListNew = new ArrayList<ItemPedido>();
             for (ItemPedido itemPedidoListNewItemPedidoToAttach : itemPedidoListNew) {
-                itemPedidoListNewItemPedidoToAttach = em.getReference(itemPedidoListNewItemPedidoToAttach.getClass(), itemPedidoListNewItemPedidoToAttach.getItemPedidoPK());
+                itemPedidoListNewItemPedidoToAttach = em.getReference(itemPedidoListNewItemPedidoToAttach.getClass(), itemPedidoListNewItemPedidoToAttach.getIdItem());
                 attachedItemPedidoListNew.add(itemPedidoListNewItemPedidoToAttach);
             }
             itemPedidoListNew = attachedItemPedidoListNew;
@@ -159,12 +155,12 @@ public class ProductoJpaController implements Serializable {
             }
             for (ItemPedido itemPedidoListNewItemPedido : itemPedidoListNew) {
                 if (!itemPedidoListOld.contains(itemPedidoListNewItemPedido)) {
-                    Producto oldProductoOfItemPedidoListNewItemPedido = itemPedidoListNewItemPedido.getProducto();
-                    itemPedidoListNewItemPedido.setProducto(producto);
+                    Producto oldIdProductoOfItemPedidoListNewItemPedido = itemPedidoListNewItemPedido.getIdProducto();
+                    itemPedidoListNewItemPedido.setIdProducto(producto);
                     itemPedidoListNewItemPedido = em.merge(itemPedidoListNewItemPedido);
-                    if (oldProductoOfItemPedidoListNewItemPedido != null && !oldProductoOfItemPedidoListNewItemPedido.equals(producto)) {
-                        oldProductoOfItemPedidoListNewItemPedido.getItemPedidoList().remove(itemPedidoListNewItemPedido);
-                        oldProductoOfItemPedidoListNewItemPedido = em.merge(oldProductoOfItemPedidoListNewItemPedido);
+                    if (oldIdProductoOfItemPedidoListNewItemPedido != null && !oldIdProductoOfItemPedidoListNewItemPedido.equals(producto)) {
+                        oldIdProductoOfItemPedidoListNewItemPedido.getItemPedidoList().remove(itemPedidoListNewItemPedido);
+                        oldIdProductoOfItemPedidoListNewItemPedido = em.merge(oldIdProductoOfItemPedidoListNewItemPedido);
                     }
                 }
             }
@@ -214,7 +210,7 @@ public class ProductoJpaController implements Serializable {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
-                illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the ItemPedido " + itemPedidoListOrphanCheckItemPedido + " in its itemPedidoList field has a non-nullable producto field.");
+                illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the ItemPedido " + itemPedidoListOrphanCheckItemPedido + " in its itemPedidoList field has a non-nullable idProducto field.");
             }
             List<ProductoIngrediente> productoIngredienteListOrphanCheck = producto.getProductoIngredienteList();
             for (ProductoIngrediente productoIngredienteListOrphanCheckProductoIngrediente : productoIngredienteListOrphanCheck) {

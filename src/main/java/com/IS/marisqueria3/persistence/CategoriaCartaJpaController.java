@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  *
@@ -26,10 +25,6 @@ public class CategoriaCartaJpaController implements Serializable {
 
     public CategoriaCartaJpaController(EntityManagerFactory emf) {
         this.emf = emf;
-    }
-    
-    public CategoriaCartaJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 

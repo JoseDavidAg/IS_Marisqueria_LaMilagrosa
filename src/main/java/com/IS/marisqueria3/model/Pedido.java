@@ -62,7 +62,7 @@ public class Pedido implements Serializable {
     private String tipoPedido;
     @OneToMany(mappedBy = "pedidoNumero")
     private List<Ticket> ticketList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedidoNumero")
     private List<ItemPedido> itemPedidoList;
     @JoinColumn(name = "cliente_id", referencedColumnName = "id_cliente")
     @ManyToOne

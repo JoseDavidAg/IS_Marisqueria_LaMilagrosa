@@ -17,8 +17,6 @@ import com.IS.marisqueria3.model.Proveedor;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
 
 /**
  *
@@ -28,9 +26,6 @@ public class ProveedorJpaController implements Serializable {
 
     public ProveedorJpaController(EntityManagerFactory emf) {
         this.emf = emf;
-    }
-    public ProveedorJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -240,25 +235,5 @@ public class ProveedorJpaController implements Serializable {
             em.close();
         }
     }
-
     
-    
-    public Proveedor findProveedorNombre(String nombre) {
-    EntityManager em = getEntityManager();
-    try {
-        TypedQuery<Proveedor> query = em.createQuery(
-            "SELECT u FROM Proveedor u WHERE u.nombre = :nombre", Proveedor.class);
-        query.setParameter("nombre", nombre);
-        
-        // Si hay más de uno, solo devuelve el primero
-        List<Proveedor> resultados = query.getResultList();
-        if (!resultados.isEmpty()) {
-            return resultados.get(0);
-        } else {
-            return null;
-        }
-    } finally {
-        em.close();
-    }
-} 
 }

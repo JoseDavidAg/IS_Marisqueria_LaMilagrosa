@@ -57,7 +57,7 @@ public class Producto implements Serializable {
     @JoinColumn(name = "categoria_id", referencedColumnName = "id_categoria")
     @ManyToOne
     private CategoriaCarta categoriaId;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProducto")
     private List<ItemPedido> itemPedidoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
     private List<ProductoIngrediente> productoIngredienteList;
@@ -95,7 +95,7 @@ public class Producto implements Serializable {
 
     public float getPrecioVenta() {
         return precioVenta;
-    } 
+    }
 
     public void setPrecioVenta(float precioVenta) {
         this.precioVenta = precioVenta;
@@ -113,10 +113,6 @@ public class Producto implements Serializable {
         return categoriaId;
     }
 
-    
-    public String getCategoriaNombre(){
-        return categoriaId.getNombre();
-    }
     public void setCategoriaId(CategoriaCarta categoriaId) {
         this.categoriaId = categoriaId;
     }
@@ -139,7 +135,6 @@ public class Producto implements Serializable {
         this.productoIngredienteList = productoIngredienteList;
     }
 
-    
     @Override
     public int hashCode() {
         int hash = 0;

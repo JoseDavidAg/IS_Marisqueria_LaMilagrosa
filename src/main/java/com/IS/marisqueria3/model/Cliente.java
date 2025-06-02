@@ -49,7 +49,7 @@ public class Cliente implements Serializable {
     @OneToMany(mappedBy = "clienteId")
     private List<Mesa> mesaList;
     @OneToMany(mappedBy = "clienteId")
-    private List<Pedido> pedidos;
+    private List<Pedido> pedidoList;
 
     public Cliente() {
     }
@@ -100,12 +100,12 @@ public class Cliente implements Serializable {
     }
 
     @XmlTransient
-    public List<Pedido> getPedidos() {
-        return pedidos;
+    public List<Pedido> getPedidoList() {
+        return pedidoList;
     }
 
-    public void setPedidos(List<Pedido> pedidos) {
-        this.pedidos = pedidos;
+    public void setPedidoList(List<Pedido> pedidoList) {
+        this.pedidoList = pedidoList;
     }
 
     @Override

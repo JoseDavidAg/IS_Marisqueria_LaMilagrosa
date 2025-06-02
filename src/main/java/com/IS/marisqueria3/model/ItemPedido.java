@@ -5,14 +5,21 @@
 package com.IS.marisqueria3.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -24,57 +31,73 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "ItemPedido.findAll", query = "SELECT i FROM ItemPedido i"),
+    @NamedQuery(name = "ItemPedido.findByIdItem", query = "SELECT i FROM ItemPedido i WHERE i.idItem = :idItem"),
     @NamedQuery(name = "ItemPedido.findByCantidad", query = "SELECT i FROM ItemPedido i WHERE i.cantidad = :cantidad"),
-    @NamedQuery(name = "ItemPedido.findByPedidoNumero", query = "SELECT i FROM ItemPedido i WHERE i.itemPedidoPK.pedidoNumero = :pedidoNumero"),
-    @NamedQuery(name = "ItemPedido.findByIdProducto", query = "SELECT i FROM ItemPedido i WHERE i.itemPedidoPK.idProducto = :idProducto"),
-    @NamedQuery(name = "ItemPedido.findByDescripcion", query = "SELECT i FROM ItemPedido i WHERE i.descripcion = :descripcion")})
+    @NamedQuery(name = "ItemPedido.findByPrecioUnitario", query = "SELECT i FROM ItemPedido i WHERE i.precioUnitario = :precioUnitario"),
+    @NamedQuery(name = "ItemPedido.findByDescripcion", query = "SELECT i FROM ItemPedido i WHERE i.descripcion = :descripcion"),
+    @NamedQuery(name = "ItemPedido.findByCreatedAt", query = "SELECT i FROM ItemPedido i WHERE i.createdAt = :createdAt")})
 public class ItemPedido implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @EmbeddedId
-    protected ItemPedidoPK itemPedidoPK;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id_item")
+    private Integer idItem;
+    @Basic(optional = false)
     @Column(name = "cantidad")
-    private Integer cantidad;
+    private int cantidad;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Basic(optional = false)
+    @Column(name = "precio_unitario")
+    private BigDecimal precioUnitario;
     @Column(name = "descripcion")
     private String descripcion;
-    @JoinColumn(name = "pedido_numero", referencedColumnName = "numero_pedido", insertable = false, updatable = false)
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+    @JoinColumn(name = "pedido_numero", referencedColumnName = "numero_pedido")
     @ManyToOne(optional = false)
-    private Pedido pedido;
-    @JoinColumn(name = "id_producto", referencedColumnName = "id_platillo", insertable = false, updatable = false)
+    private Pedido pedidoNumero;
+    @JoinColumn(name = "id_producto", referencedColumnName = "id_platillo")
     @ManyToOne(optional = false)
-    private Producto producto;
+    private Producto idProducto;
 
     public ItemPedido() {
     }
 
-    public ItemPedido(ItemPedidoPK itemPedidoPK) {
-        this.itemPedidoPK = itemPedidoPK;
+    public ItemPedido(Integer idItem) {
+        this.idItem = idItem;
     }
-    
-    public ItemPedido(Producto producto, int cantidad, String descripcion) {
-        this.producto = producto;
+
+    public ItemPedido(Integer idItem, int cantidad, BigDecimal precioUnitario) {
+        this.idItem = idItem;
         this.cantidad = cantidad;
-        this.descripcion = descripcion;
-    }
-    
-    public ItemPedido(int pedidoNumero, int idProducto) {
-        this.itemPedidoPK = new ItemPedidoPK(pedidoNumero, idProducto);
+        this.precioUnitario = precioUnitario;
     }
 
-    public ItemPedidoPK getItemPedidoPK() {
-        return itemPedidoPK;
+    public Integer getIdItem() {
+        return idItem;
     }
 
-    public void setItemPedidoPK(ItemPedidoPK itemPedidoPK) {
-        this.itemPedidoPK = itemPedidoPK;
+    public void setIdItem(Integer idItem) {
+        this.idItem = idItem;
     }
 
-    public Integer getCantidad() {
+    public int getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(Integer cantidad) {
+    public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
     }
 
     public String getDescripcion() {
@@ -85,26 +108,34 @@ public class ItemPedido implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Producto getProducto() {
-        return producto;
+    public Pedido getPedidoNumero() {
+        return pedidoNumero;
     }
 
-    public void setProducto(Producto producto) {
-        this.producto = producto;
+    public void setPedidoNumero(Pedido pedidoNumero) {
+        this.pedidoNumero = pedidoNumero;
+    }
+
+    public Producto getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(Producto idProducto) {
+        this.idProducto = idProducto;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (itemPedidoPK != null ? itemPedidoPK.hashCode() : 0);
+        hash += (idItem != null ? idItem.hashCode() : 0);
         return hash;
     }
 
@@ -115,7 +146,7 @@ public class ItemPedido implements Serializable {
             return false;
         }
         ItemPedido other = (ItemPedido) object;
-        if ((this.itemPedidoPK == null && other.itemPedidoPK != null) || (this.itemPedidoPK != null && !this.itemPedidoPK.equals(other.itemPedidoPK))) {
+        if ((this.idItem == null && other.idItem != null) || (this.idItem != null && !this.idItem.equals(other.idItem))) {
             return false;
         }
         return true;
@@ -123,7 +154,7 @@ public class ItemPedido implements Serializable {
 
     @Override
     public String toString() {
-        return "com.IS.marisqueria3.model.ItemPedido[ itemPedidoPK=" + itemPedidoPK + " ]";
+        return "com.IS.marisqueria3.model.ItemPedido[ idItem=" + idItem + " ]";
     }
     
 }

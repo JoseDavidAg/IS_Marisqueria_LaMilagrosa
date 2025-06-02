@@ -17,7 +17,6 @@ import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  *
@@ -27,9 +26,6 @@ public class ClienteJpaController implements Serializable {
 
     public ClienteJpaController(EntityManagerFactory emf) {
         this.emf = emf;
-    }
-    public ClienteJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -41,8 +37,8 @@ public class ClienteJpaController implements Serializable {
         if (cliente.getMesaList() == null) {
             cliente.setMesaList(new ArrayList<Mesa>());
         }
-        if (cliente.getPedidos() == null) {
-            cliente.setPedidos(new ArrayList<Pedido>());
+        if (cliente.getPedidoList() == null) {
+            cliente.setPedidoList(new ArrayList<Pedido>());
         }
         EntityManager em = null;
         try {
@@ -55,11 +51,11 @@ public class ClienteJpaController implements Serializable {
             }
             cliente.setMesaList(attachedMesaList);
             List<Pedido> attachedPedidoList = new ArrayList<Pedido>();
-            for (Pedido pedidoListPedidoToAttach : cliente.getPedidos()) {
+            for (Pedido pedidoListPedidoToAttach : cliente.getPedidoList()) {
                 pedidoListPedidoToAttach = em.getReference(pedidoListPedidoToAttach.getClass(), pedidoListPedidoToAttach.getNumeroPedido());
                 attachedPedidoList.add(pedidoListPedidoToAttach);
             }
-            cliente.setPedidos(attachedPedidoList);
+            cliente.setPedidoList(attachedPedidoList);
             em.persist(cliente);
             for (Mesa mesaListMesa : cliente.getMesaList()) {
                 Cliente oldClienteIdOfMesaListMesa = mesaListMesa.getClienteId();
@@ -70,12 +66,12 @@ public class ClienteJpaController implements Serializable {
                     oldClienteIdOfMesaListMesa = em.merge(oldClienteIdOfMesaListMesa);
                 }
             }
-            for (Pedido pedidoListPedido : cliente.getPedidos()) {
+            for (Pedido pedidoListPedido : cliente.getPedidoList()) {
                 Cliente oldClienteIdOfPedidoListPedido = pedidoListPedido.getClienteId();
                 pedidoListPedido.setClienteId(cliente);
                 pedidoListPedido = em.merge(pedidoListPedido);
                 if (oldClienteIdOfPedidoListPedido != null) {
-                    oldClienteIdOfPedidoListPedido.getPedidos().remove(pedidoListPedido);
+                    oldClienteIdOfPedidoListPedido.getPedidoList().remove(pedidoListPedido);
                     oldClienteIdOfPedidoListPedido = em.merge(oldClienteIdOfPedidoListPedido);
                 }
             }
@@ -95,8 +91,8 @@ public class ClienteJpaController implements Serializable {
             Cliente persistentCliente = em.find(Cliente.class, cliente.getIdCliente());
             List<Mesa> mesaListOld = persistentCliente.getMesaList();
             List<Mesa> mesaListNew = cliente.getMesaList();
-            List<Pedido> pedidoListOld = persistentCliente.getPedidos();
-            List<Pedido> pedidoListNew = cliente.getPedidos();
+            List<Pedido> pedidoListOld = persistentCliente.getPedidoList();
+            List<Pedido> pedidoListNew = cliente.getPedidoList();
             List<Mesa> attachedMesaListNew = new ArrayList<Mesa>();
             for (Mesa mesaListNewMesaToAttach : mesaListNew) {
                 mesaListNewMesaToAttach = em.getReference(mesaListNewMesaToAttach.getClass(), mesaListNewMesaToAttach.getIdMesa());
@@ -110,7 +106,7 @@ public class ClienteJpaController implements Serializable {
                 attachedPedidoListNew.add(pedidoListNewPedidoToAttach);
             }
             pedidoListNew = attachedPedidoListNew;
-            cliente.setPedidos(pedidoListNew);
+            cliente.setPedidoList(pedidoListNew);
             cliente = em.merge(cliente);
             for (Mesa mesaListOldMesa : mesaListOld) {
                 if (!mesaListNew.contains(mesaListOldMesa)) {
@@ -141,7 +137,7 @@ public class ClienteJpaController implements Serializable {
                     pedidoListNewPedido.setClienteId(cliente);
                     pedidoListNewPedido = em.merge(pedidoListNewPedido);
                     if (oldClienteIdOfPedidoListNewPedido != null && !oldClienteIdOfPedidoListNewPedido.equals(cliente)) {
-                        oldClienteIdOfPedidoListNewPedido.getPedidos().remove(pedidoListNewPedido);
+                        oldClienteIdOfPedidoListNewPedido.getPedidoList().remove(pedidoListNewPedido);
                         oldClienteIdOfPedidoListNewPedido = em.merge(oldClienteIdOfPedidoListNewPedido);
                     }
                 }
@@ -180,7 +176,7 @@ public class ClienteJpaController implements Serializable {
                 mesaListMesa.setClienteId(null);
                 mesaListMesa = em.merge(mesaListMesa);
             }
-            List<Pedido> pedidoList = cliente.getPedidos();
+            List<Pedido> pedidoList = cliente.getPedidoList();
             for (Pedido pedidoListPedido : pedidoList) {
                 pedidoListPedido.setClienteId(null);
                 pedidoListPedido = em.merge(pedidoListPedido);

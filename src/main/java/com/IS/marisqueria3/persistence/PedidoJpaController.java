@@ -10,7 +10,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Cliente;
-import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.Ticket;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,6 @@ import com.IS.marisqueria3.persistence.exceptions.IllegalOrphanException;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
 
 /**
  *
@@ -31,10 +28,6 @@ public class PedidoJpaController implements Serializable {
 
     public PedidoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
-    }
-    
-    public PedidoJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -66,13 +59,13 @@ public class PedidoJpaController implements Serializable {
             pedido.setTicketList(attachedTicketList);
             List<ItemPedido> attachedItemPedidoList = new ArrayList<ItemPedido>();
             for (ItemPedido itemPedidoListItemPedidoToAttach : pedido.getItemPedidoList()) {
-                itemPedidoListItemPedidoToAttach = em.getReference(itemPedidoListItemPedidoToAttach.getClass(), itemPedidoListItemPedidoToAttach.getItemPedidoPK());
+                itemPedidoListItemPedidoToAttach = em.getReference(itemPedidoListItemPedidoToAttach.getClass(), itemPedidoListItemPedidoToAttach.getIdItem());
                 attachedItemPedidoList.add(itemPedidoListItemPedidoToAttach);
             }
             pedido.setItemPedidoList(attachedItemPedidoList);
             em.persist(pedido);
             if (clienteId != null) {
-                clienteId.getPedidos().add(pedido);
+                clienteId.getPedidoList().add(pedido);
                 clienteId = em.merge(clienteId);
             }
             for (Ticket ticketListTicket : pedido.getTicketList()) {
@@ -85,12 +78,12 @@ public class PedidoJpaController implements Serializable {
                 }
             }
             for (ItemPedido itemPedidoListItemPedido : pedido.getItemPedidoList()) {
-                Pedido oldPedidoOfItemPedidoListItemPedido = itemPedidoListItemPedido.getPedido();
-                itemPedidoListItemPedido.setPedido(pedido);
+                Pedido oldPedidoNumeroOfItemPedidoListItemPedido = itemPedidoListItemPedido.getPedidoNumero();
+                itemPedidoListItemPedido.setPedidoNumero(pedido);
                 itemPedidoListItemPedido = em.merge(itemPedidoListItemPedido);
-                if (oldPedidoOfItemPedidoListItemPedido != null) {
-                    oldPedidoOfItemPedidoListItemPedido.getItemPedidoList().remove(itemPedidoListItemPedido);
-                    oldPedidoOfItemPedidoListItemPedido = em.merge(oldPedidoOfItemPedidoListItemPedido);
+                if (oldPedidoNumeroOfItemPedidoListItemPedido != null) {
+                    oldPedidoNumeroOfItemPedidoListItemPedido.getItemPedidoList().remove(itemPedidoListItemPedido);
+                    oldPedidoNumeroOfItemPedidoListItemPedido = em.merge(oldPedidoNumeroOfItemPedidoListItemPedido);
                 }
             }
             em.getTransaction().commit();
@@ -119,7 +112,7 @@ public class PedidoJpaController implements Serializable {
                     if (illegalOrphanMessages == null) {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
-                    illegalOrphanMessages.add("You must retain ItemPedido " + itemPedidoListOldItemPedido + " since its pedido field is not nullable.");
+                    illegalOrphanMessages.add("You must retain ItemPedido " + itemPedidoListOldItemPedido + " since its pedidoNumero field is not nullable.");
                 }
             }
             if (illegalOrphanMessages != null) {
@@ -138,18 +131,18 @@ public class PedidoJpaController implements Serializable {
             pedido.setTicketList(ticketListNew);
             List<ItemPedido> attachedItemPedidoListNew = new ArrayList<ItemPedido>();
             for (ItemPedido itemPedidoListNewItemPedidoToAttach : itemPedidoListNew) {
-                itemPedidoListNewItemPedidoToAttach = em.getReference(itemPedidoListNewItemPedidoToAttach.getClass(), itemPedidoListNewItemPedidoToAttach.getItemPedidoPK());
+                itemPedidoListNewItemPedidoToAttach = em.getReference(itemPedidoListNewItemPedidoToAttach.getClass(), itemPedidoListNewItemPedidoToAttach.getIdItem());
                 attachedItemPedidoListNew.add(itemPedidoListNewItemPedidoToAttach);
             }
             itemPedidoListNew = attachedItemPedidoListNew;
             pedido.setItemPedidoList(itemPedidoListNew);
             pedido = em.merge(pedido);
             if (clienteIdOld != null && !clienteIdOld.equals(clienteIdNew)) {
-                clienteIdOld.getPedidos().remove(pedido);
+                clienteIdOld.getPedidoList().remove(pedido);
                 clienteIdOld = em.merge(clienteIdOld);
             }
             if (clienteIdNew != null && !clienteIdNew.equals(clienteIdOld)) {
-                clienteIdNew.getPedidos().add(pedido);
+                clienteIdNew.getPedidoList().add(pedido);
                 clienteIdNew = em.merge(clienteIdNew);
             }
             for (Ticket ticketListOldTicket : ticketListOld) {
@@ -171,12 +164,12 @@ public class PedidoJpaController implements Serializable {
             }
             for (ItemPedido itemPedidoListNewItemPedido : itemPedidoListNew) {
                 if (!itemPedidoListOld.contains(itemPedidoListNewItemPedido)) {
-                    Pedido oldPedidoOfItemPedidoListNewItemPedido = itemPedidoListNewItemPedido.getPedido();
-                    itemPedidoListNewItemPedido.setPedido(pedido);
+                    Pedido oldPedidoNumeroOfItemPedidoListNewItemPedido = itemPedidoListNewItemPedido.getPedidoNumero();
+                    itemPedidoListNewItemPedido.setPedidoNumero(pedido);
                     itemPedidoListNewItemPedido = em.merge(itemPedidoListNewItemPedido);
-                    if (oldPedidoOfItemPedidoListNewItemPedido != null && !oldPedidoOfItemPedidoListNewItemPedido.equals(pedido)) {
-                        oldPedidoOfItemPedidoListNewItemPedido.getItemPedidoList().remove(itemPedidoListNewItemPedido);
-                        oldPedidoOfItemPedidoListNewItemPedido = em.merge(oldPedidoOfItemPedidoListNewItemPedido);
+                    if (oldPedidoNumeroOfItemPedidoListNewItemPedido != null && !oldPedidoNumeroOfItemPedidoListNewItemPedido.equals(pedido)) {
+                        oldPedidoNumeroOfItemPedidoListNewItemPedido.getItemPedidoList().remove(itemPedidoListNewItemPedido);
+                        oldPedidoNumeroOfItemPedidoListNewItemPedido = em.merge(oldPedidoNumeroOfItemPedidoListNewItemPedido);
                     }
                 }
             }
@@ -215,14 +208,14 @@ public class PedidoJpaController implements Serializable {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
-                illegalOrphanMessages.add("This Pedido (" + pedido + ") cannot be destroyed since the ItemPedido " + itemPedidoListOrphanCheckItemPedido + " in its itemPedidoList field has a non-nullable pedido field.");
+                illegalOrphanMessages.add("This Pedido (" + pedido + ") cannot be destroyed since the ItemPedido " + itemPedidoListOrphanCheckItemPedido + " in its itemPedidoList field has a non-nullable pedidoNumero field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
             Cliente clienteId = pedido.getClienteId();
             if (clienteId != null) {
-                clienteId.getPedidos().remove(pedido);
+                clienteId.getPedidoList().remove(pedido);
                 clienteId = em.merge(clienteId);
             }
             List<Ticket> ticketList = pedido.getTicketList();
@@ -271,35 +264,6 @@ public class PedidoJpaController implements Serializable {
             em.close();
         }
     }
-
-    public List<Pedido> findPedidoEntities(String completado) {
-    EntityManager em = getEntityManager();
-    try {
-        TypedQuery<Pedido> query = em.createQuery(
-            "SELECT u FROM Pedido u WHERE u.estado != :completado", Pedido.class);
-        query.setParameter("completado", completado);
-
-        List<Pedido> resultados = query.getResultList();
-        return resultados;
-    } finally {
-        em.close();
-    }
-} 
-
-    public List<Ingrediente> findPedidoIngredientes(int platilloId) {
-    EntityManager em = getEntityManager();
-    try {
-        return em.createQuery(
-            "SELECT i FROM Ingrediente i JOIN i.productoIngredienteList pi WHERE pi.productoIngredientePK.productoId = :platilloId",
-            Ingrediente.class)
-            .setParameter("platilloId", platilloId)
-            .getResultList();
-    } finally {
-        em.close();
-    }
-}
-
-//en pedido
 
     public int getPedidoCount() {
         EntityManager em = getEntityManager();

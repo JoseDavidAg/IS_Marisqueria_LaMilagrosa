@@ -78,7 +78,7 @@ public class TMIngrediente extends AbstractTableModel{
     @Override
     public void setValueAt(Object dato, int r, int c) {
         Ingrediente ing = datosIngredientes.get(r);
-        try {
+        try { 
             switch(c) {
                 case 1: ing.setDescripcion((String) dato); break;
                 case 2: ing.setPrecioUnitario(Float.parseFloat(dato.toString())); break;

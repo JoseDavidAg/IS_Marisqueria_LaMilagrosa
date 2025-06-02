@@ -5,7 +5,6 @@
 package com.IS.marisqueria3.persistence;
 
 import com.IS.marisqueria3.model.ItemPedido;
-import com.IS.marisqueria3.model.ItemPedidoPK;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -14,11 +13,9 @@ import javax.persistence.criteria.Root;
 import com.IS.marisqueria3.model.Pedido;
 import com.IS.marisqueria3.model.Producto;
 import com.IS.marisqueria3.persistence.exceptions.NonexistentEntityException;
-import com.IS.marisqueria3.persistence.exceptions.PreexistingEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  *
@@ -29,50 +26,37 @@ public class ItemPedidoJpaController implements Serializable {
     public ItemPedidoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    public ItemPedidoJpaController(){
-        emf= Persistence.createEntityManagerFactory("Marisqueria3TPU");
-    }
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
-    public void create(ItemPedido itemPedido) throws PreexistingEntityException, Exception {
-        if (itemPedido.getItemPedidoPK() == null) {
-            itemPedido.setItemPedidoPK(new ItemPedidoPK());
-        }
-        itemPedido.getItemPedidoPK().setPedidoNumero(itemPedido.getPedido().getNumeroPedido());
-        itemPedido.getItemPedidoPK().setIdProducto(itemPedido.getProducto().getIdPlatillo());
+    public void create(ItemPedido itemPedido) {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Pedido pedido = itemPedido.getPedido();
-            if (pedido != null) {
-                pedido = em.getReference(pedido.getClass(), pedido.getNumeroPedido());
-                itemPedido.setPedido(pedido);
+            Pedido pedidoNumero = itemPedido.getPedidoNumero();
+            if (pedidoNumero != null) {
+                pedidoNumero = em.getReference(pedidoNumero.getClass(), pedidoNumero.getNumeroPedido());
+                itemPedido.setPedidoNumero(pedidoNumero);
             }
-            Producto producto = itemPedido.getProducto();
-            if (producto != null) {
-                producto = em.getReference(producto.getClass(), producto.getIdPlatillo());
-                itemPedido.setProducto(producto);
+            Producto idProducto = itemPedido.getIdProducto();
+            if (idProducto != null) {
+                idProducto = em.getReference(idProducto.getClass(), idProducto.getIdPlatillo());
+                itemPedido.setIdProducto(idProducto);
             }
             em.persist(itemPedido);
-            if (pedido != null) {
-                pedido.getItemPedidoList().add(itemPedido);
-                pedido = em.merge(pedido);
+            if (pedidoNumero != null) {
+                pedidoNumero.getItemPedidoList().add(itemPedido);
+                pedidoNumero = em.merge(pedidoNumero);
             }
-            if (producto != null) {
-                producto.getItemPedidoList().add(itemPedido);
-                producto = em.merge(producto);
+            if (idProducto != null) {
+                idProducto.getItemPedidoList().add(itemPedido);
+                idProducto = em.merge(idProducto);
             }
             em.getTransaction().commit();
-        } catch (Exception ex) {
-            if (findItemPedido(itemPedido.getItemPedidoPK()) != null) {
-                throw new PreexistingEntityException("ItemPedido " + itemPedido + " already exists.", ex);
-            }
-            throw ex;
         } finally {
             if (em != null) {
                 em.close();
@@ -81,47 +65,45 @@ public class ItemPedidoJpaController implements Serializable {
     }
 
     public void edit(ItemPedido itemPedido) throws NonexistentEntityException, Exception {
-        itemPedido.getItemPedidoPK().setPedidoNumero(itemPedido.getPedido().getNumeroPedido());
-        itemPedido.getItemPedidoPK().setIdProducto(itemPedido.getProducto().getIdPlatillo());
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            ItemPedido persistentItemPedido = em.find(ItemPedido.class, itemPedido.getItemPedidoPK());
-            Pedido pedidoOld = persistentItemPedido.getPedido();
-            Pedido pedidoNew = itemPedido.getPedido();
-            Producto productoOld = persistentItemPedido.getProducto();
-            Producto productoNew = itemPedido.getProducto();
-            if (pedidoNew != null) {
-                pedidoNew = em.getReference(pedidoNew.getClass(), pedidoNew.getNumeroPedido());
-                itemPedido.setPedido(pedidoNew);
+            ItemPedido persistentItemPedido = em.find(ItemPedido.class, itemPedido.getIdItem());
+            Pedido pedidoNumeroOld = persistentItemPedido.getPedidoNumero();
+            Pedido pedidoNumeroNew = itemPedido.getPedidoNumero();
+            Producto idProductoOld = persistentItemPedido.getIdProducto();
+            Producto idProductoNew = itemPedido.getIdProducto();
+            if (pedidoNumeroNew != null) {
+                pedidoNumeroNew = em.getReference(pedidoNumeroNew.getClass(), pedidoNumeroNew.getNumeroPedido());
+                itemPedido.setPedidoNumero(pedidoNumeroNew);
             }
-            if (productoNew != null) {
-                productoNew = em.getReference(productoNew.getClass(), productoNew.getIdPlatillo());
-                itemPedido.setProducto(productoNew);
+            if (idProductoNew != null) {
+                idProductoNew = em.getReference(idProductoNew.getClass(), idProductoNew.getIdPlatillo());
+                itemPedido.setIdProducto(idProductoNew);
             }
             itemPedido = em.merge(itemPedido);
-            if (pedidoOld != null && !pedidoOld.equals(pedidoNew)) {
-                pedidoOld.getItemPedidoList().remove(itemPedido);
-                pedidoOld = em.merge(pedidoOld);
+            if (pedidoNumeroOld != null && !pedidoNumeroOld.equals(pedidoNumeroNew)) {
+                pedidoNumeroOld.getItemPedidoList().remove(itemPedido);
+                pedidoNumeroOld = em.merge(pedidoNumeroOld);
             }
-            if (pedidoNew != null && !pedidoNew.equals(pedidoOld)) {
-                pedidoNew.getItemPedidoList().add(itemPedido);
-                pedidoNew = em.merge(pedidoNew);
+            if (pedidoNumeroNew != null && !pedidoNumeroNew.equals(pedidoNumeroOld)) {
+                pedidoNumeroNew.getItemPedidoList().add(itemPedido);
+                pedidoNumeroNew = em.merge(pedidoNumeroNew);
             }
-            if (productoOld != null && !productoOld.equals(productoNew)) {
-                productoOld.getItemPedidoList().remove(itemPedido);
-                productoOld = em.merge(productoOld);
+            if (idProductoOld != null && !idProductoOld.equals(idProductoNew)) {
+                idProductoOld.getItemPedidoList().remove(itemPedido);
+                idProductoOld = em.merge(idProductoOld);
             }
-            if (productoNew != null && !productoNew.equals(productoOld)) {
-                productoNew.getItemPedidoList().add(itemPedido);
-                productoNew = em.merge(productoNew);
+            if (idProductoNew != null && !idProductoNew.equals(idProductoOld)) {
+                idProductoNew.getItemPedidoList().add(itemPedido);
+                idProductoNew = em.merge(idProductoNew);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                ItemPedidoPK id = itemPedido.getItemPedidoPK();
+                Integer id = itemPedido.getIdItem();
                 if (findItemPedido(id) == null) {
                     throw new NonexistentEntityException("The itemPedido with id " + id + " no longer exists.");
                 }
@@ -134,7 +116,7 @@ public class ItemPedidoJpaController implements Serializable {
         }
     }
 
-    public void destroy(ItemPedidoPK id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -142,19 +124,19 @@ public class ItemPedidoJpaController implements Serializable {
             ItemPedido itemPedido;
             try {
                 itemPedido = em.getReference(ItemPedido.class, id);
-                itemPedido.getItemPedidoPK();
+                itemPedido.getIdItem();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The itemPedido with id " + id + " no longer exists.", enfe);
             }
-            Pedido pedido = itemPedido.getPedido();
-            if (pedido != null) {
-                pedido.getItemPedidoList().remove(itemPedido);
-                pedido = em.merge(pedido);
+            Pedido pedidoNumero = itemPedido.getPedidoNumero();
+            if (pedidoNumero != null) {
+                pedidoNumero.getItemPedidoList().remove(itemPedido);
+                pedidoNumero = em.merge(pedidoNumero);
             }
-            Producto producto = itemPedido.getProducto();
-            if (producto != null) {
-                producto.getItemPedidoList().remove(itemPedido);
-                producto = em.merge(producto);
+            Producto idProducto = itemPedido.getIdProducto();
+            if (idProducto != null) {
+                idProducto.getItemPedidoList().remove(itemPedido);
+                idProducto = em.merge(idProducto);
             }
             em.remove(itemPedido);
             em.getTransaction().commit();
@@ -189,7 +171,7 @@ public class ItemPedidoJpaController implements Serializable {
         }
     }
 
-    public ItemPedido findItemPedido(ItemPedidoPK id) {
+    public ItemPedido findItemPedido(Integer id) {
         EntityManager em = getEntityManager();
         try {
             return em.find(ItemPedido.class, id);
