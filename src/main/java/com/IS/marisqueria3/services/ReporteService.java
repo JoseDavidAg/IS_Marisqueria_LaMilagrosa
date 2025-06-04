@@ -5,13 +5,19 @@
 package com.IS.marisqueria3.services;
 
 import com.IS.marisqueria3.model.MTablas.ReporteVentas;
+import com.IS.marisqueria3.util.Alerta;
+import java.awt.BorderLayout;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -52,7 +58,7 @@ public class ReporteService implements Serializable {
                     + "WHERE pd.fechaGeneracion BETWEEN :inicio AND :fin "
                     + "AND pd.estado = 'terminado' "
                     + "GROUP BY c.idCategoria, c.nombre, p.idPlatillo, p.nombre, p.descripcion, p.precioVenta";
-        System.out.println("jpql: "+jpql);
+       
         return em.createQuery(jpql, ReporteVentas.class)
                 .setParameter("inicio", inicioTimestamp)
                 .setParameter("fin", finTimestamp)
@@ -66,5 +72,18 @@ public class ReporteService implements Serializable {
     }
 }
     
+    public List<Alerta> obtenerAlertasStockBajo() {
+        EntityManager em = getEntityManager();
+        
+        String jpql= "SELECT new com.IS.marisqueria3.util.Alerta( i.nombre, i.stockMinimo, i.stockDisponible) FROM Ingrediente i WHERE i.stockDisponible <= i.stockMinimo";
+        return em.createQuery(jpql, Alerta.class)
+                .getResultList();      
+    }
+
+    
+    
+    
+    
+
   
 }

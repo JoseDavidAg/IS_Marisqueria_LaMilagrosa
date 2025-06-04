@@ -33,7 +33,6 @@ public class PanelPedidoIM extends JPanel {
     private int mesaActual;
     private JButton btnEliminarItem;
     private JButton btnEditarCantidad;
-    private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
     public interface PedidoListener {
         void onPedidoConfirmado(Pedido pedido, int mesa);

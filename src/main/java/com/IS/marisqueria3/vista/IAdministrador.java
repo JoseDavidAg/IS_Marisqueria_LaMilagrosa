@@ -4,17 +4,29 @@
  */
 package com.IS.marisqueria3.vista;
 import com.IS.marisqueria3.services.ReporteService;
+import com.IS.marisqueria3.util.Alerta;
 import com.IS.marisqueria3.util.GeneradorReportes;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelEditarIngrediente;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelInventario;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelProveedores;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelUsuarios;
 import com.itextpdf.text.DocumentException;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 public class IAdministrador extends javax.swing.JFrame {
     private final PanelEditarIngrediente panelEIngrediente;
@@ -22,7 +34,7 @@ public class IAdministrador extends javax.swing.JFrame {
     private final PanelProveedores panelProveedores;
     private final PanelUsuarios panelUsuario;
     private final ReporteService reporteS;
-    
+    private Alerta alerta;
     
     //ingredientes GUI
     
@@ -38,6 +50,7 @@ public class IAdministrador extends javax.swing.JFrame {
         cargarIngredientesEditar();
         cargarPanelUsuarios();
         cargarPanelProveedores();
+        new Thread(()-> cargarAlertas()).start();
         
     }
     
@@ -73,11 +86,61 @@ public class IAdministrador extends javax.swing.JFrame {
         repaint();
     }
     
+    public void cargarAlertas(){
+        List<Alerta>alertas = reporteS.obtenerAlertasStockBajo();
+        if (!alertas.isEmpty()) {
+            SwingUtilities.invokeLater(() -> {
+                mostrarDialogoAlertas(alertas);
+            });
+        }
+    }
      
-     
+    public void mostrarPanelInventario(){
+        tabbedPrincipal.setSelectedIndex(4);
+        tabbedOrdenCompra.setSelectedIndex(1);
+    }
      
 
+    private void mostrarDialogoAlertas(List<Alerta> alertas) {
+        JDialog dialogo = new JDialog(this, "⚠ Ingredientes con bajo stock", true); // modal
+        dialogo.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialogo.setSize(500, 300);
+        dialogo.setLocationRelativeTo(this);
 
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JTextArea areaTexto = new JTextArea();
+        areaTexto.setEditable(false);
+
+        StringBuilder mensaje = new StringBuilder();
+        for (Alerta alerta : alertas) {
+            mensaje.append("• ").append(alerta.getMensajeStock()).append("\n");
+        }
+        areaTexto.setText(mensaje.toString());
+        areaTexto.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        areaTexto.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        panel.add(new JScrollPane(areaTexto), BorderLayout.CENTER);
+
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnInventario = new JButton("Ir al inventario");
+        JButton btnCerrar = new JButton("Ignorar");
+
+        btnInventario.addActionListener(e -> {
+            mostrarPanelInventario();
+            dialogo.dispose();
+        });
+
+        btnCerrar.addActionListener(e -> {
+            dialogo.dispose();
+        });
+
+        botones.add(btnInventario);
+        botones.add(btnCerrar);
+
+        panel.add(botones, BorderLayout.SOUTH);
+        dialogo.setContentPane(panel);
+        dialogo.setVisible(true);
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -85,7 +148,7 @@ public class IAdministrador extends javax.swing.JFrame {
 
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jTabbedPanel = new javax.swing.JTabbedPane();
+        tabbedPrincipal = new javax.swing.JTabbedPane();
         proveedoresScroll = new javax.swing.JScrollPane();
         proveedoresPanel = new javax.swing.JPanel();
         usuariosScroll = new javax.swing.JScrollPane();
@@ -123,7 +186,7 @@ public class IAdministrador extends javax.swing.JFrame {
         ingredientesTabla = new javax.swing.JTable();
         jLabel39 = new javax.swing.JLabel();
         reportesPanel = new javax.swing.JPanel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        tabbedOrdenCompra = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel22 = new javax.swing.JLabel();
@@ -149,6 +212,7 @@ public class IAdministrador extends javax.swing.JFrame {
         ingrediente1Panel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jButton1.setText("Salir");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -156,21 +220,23 @@ public class IAdministrador extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
+        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 6, -1, 36));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setText("Administrador");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 12, -1, -1));
 
         proveedoresPanel.setBackground(new java.awt.Color(255, 255, 255));
         proveedoresPanel.setLayout(new javax.swing.BoxLayout(proveedoresPanel, javax.swing.BoxLayout.LINE_AXIS));
         proveedoresScroll.setViewportView(proveedoresPanel);
 
-        jTabbedPanel.addTab("Proveedores", proveedoresScroll);
+        tabbedPrincipal.addTab("Proveedores", proveedoresScroll);
 
         usuariosPanel.setBackground(new java.awt.Color(255, 255, 255));
         usuariosPanel.setLayout(new java.awt.BorderLayout());
         usuariosScroll.setViewportView(usuariosPanel);
 
-        jTabbedPanel.addTab("Usuarios", usuariosScroll);
+        tabbedPrincipal.addTab("Usuarios", usuariosScroll);
 
         ventasPanel.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -271,7 +337,7 @@ public class IAdministrador extends javax.swing.JFrame {
 
         ventasScroll.setViewportView(ventasPanel);
 
-        jTabbedPanel.addTab("Ventas", ventasScroll);
+        tabbedPrincipal.addTab("Ventas", ventasScroll);
 
         menuPanel.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -459,7 +525,7 @@ public class IAdministrador extends javax.swing.JFrame {
 
         menuScroll.setViewportView(menuPanel);
 
-        jTabbedPanel.addTab("Menu", menuScroll);
+        tabbedPrincipal.addTab("Menu", menuScroll);
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -490,9 +556,10 @@ public class IAdministrador extends javax.swing.JFrame {
                             .addComponent(jLabel24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(28, 28, 28)
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jDateInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jDateFin, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jDateFin, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+                                .addComponent(jDateInicio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGap(276, 276, 276)
                         .addComponent(jLabel18)))
@@ -563,7 +630,7 @@ public class IAdministrador extends javax.swing.JFrame {
                 .addGap(44, 44, 44))
         );
 
-        jTabbedPane1.addTab("Generar reporte venta", jPanel6);
+        tabbedOrdenCompra.addTab("Generar reporte venta", jPanel6);
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -632,23 +699,23 @@ public class IAdministrador extends javax.swing.JFrame {
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(56, 56, 56)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(439, Short.MAX_VALUE))
+                .addContainerGap(42, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Generar orden de compra", jPanel7);
+        tabbedOrdenCompra.addTab("Generar orden de compra", jPanel7);
 
         javax.swing.GroupLayout reportesPanelLayout = new javax.swing.GroupLayout(reportesPanel);
         reportesPanel.setLayout(reportesPanelLayout);
         reportesPanelLayout.setHorizontalGroup(
             reportesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(tabbedOrdenCompra)
         );
         reportesPanelLayout.setVerticalGroup(
             reportesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(tabbedOrdenCompra)
         );
 
-        jTabbedPanel.addTab("Reportes", reportesPanel);
+        tabbedPrincipal.addTab("Reportes", reportesPanel);
 
         ingrediente2Panel.setBackground(new java.awt.Color(255, 255, 255));
         ingrediente2Panel.setLayout(new java.awt.BorderLayout());
@@ -665,47 +732,22 @@ public class IAdministrador extends javax.swing.JFrame {
         inventarioPanel.setLayout(inventarioPanelLayout);
         inventarioPanelLayout.setHorizontalGroup(
             inventarioPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 893, Short.MAX_VALUE)
+            .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 861, Short.MAX_VALUE)
         );
         inventarioPanelLayout.setVerticalGroup(
             inventarioPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jTabbedPane2)
         );
 
-        jTabbedPanel.addTab("Inventario", inventarioPanel);
+        tabbedPrincipal.addTab("Inventario", inventarioPanel);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTabbedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 861, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(302, 302, 302)
-                        .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addGap(42, 42, 42)
-                .addComponent(jTabbedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        getContentPane().add(tabbedPrincipal, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 84, 861, 468));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_jButton3ActionPerformed
     
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -866,9 +908,7 @@ public class IAdministrador extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTabbedPane jTabbedPanel;
     private javax.swing.JTable jTable4;
     private javax.swing.JButton limpiar3;
     private javax.swing.JPanel menuPanel;
@@ -877,6 +917,8 @@ public class IAdministrador extends javax.swing.JFrame {
     private javax.swing.JPanel proveedoresPanel;
     private javax.swing.JScrollPane proveedoresScroll;
     private javax.swing.JPanel reportesPanel;
+    private javax.swing.JTabbedPane tabbedOrdenCompra;
+    private javax.swing.JTabbedPane tabbedPrincipal;
     private javax.swing.JTextField txtTelefono4;
     private javax.swing.JTextField txtTelefono5;
     private javax.swing.JPanel usuariosPanel;

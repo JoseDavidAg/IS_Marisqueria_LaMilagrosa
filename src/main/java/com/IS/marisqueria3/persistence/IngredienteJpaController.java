@@ -270,7 +270,8 @@ public class IngredienteJpaController implements Serializable {
             em.close();
         }
     }
-
+    
+   
    
      
     public int getIngredienteCount() {
