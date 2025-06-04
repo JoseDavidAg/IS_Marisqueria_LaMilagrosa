@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.IS.marisqueria3.vista.IAdministradorC;
+package com.IS.marisqueria3.model.MTablas;
 
 import com.IS.marisqueria3.model.Ingrediente;
 import javax.swing.JSpinner;
@@ -12,7 +12,7 @@ import javax.swing.SpinnerNumberModel;
  *
  * @author ambro
  */
-public class DatosTablaInventario1 {
+public class DatosTablaInventario {
     
     private Ingrediente t;
     private int stockMinimo;
@@ -22,7 +22,7 @@ public class DatosTablaInventario1 {
     private JSpinner spinner;
     
 
-    public DatosTablaInventario1(Ingrediente t) {
+    public DatosTablaInventario(Ingrediente t) {
         this.t = t;
         stockMinimo= t.getStockMinimo();
         stockDisponible=t.getStockDisponible();
@@ -32,9 +32,6 @@ public class DatosTablaInventario1 {
      
     }
     
-    
-    
-
     public Ingrediente getT() {
         return t;
     }
@@ -85,7 +82,4 @@ public class DatosTablaInventario1 {
         return spinner;
     }
     
-
-
- 
 }

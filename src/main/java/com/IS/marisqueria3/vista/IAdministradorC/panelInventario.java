@@ -4,6 +4,7 @@
  */
 package com.IS.marisqueria3.vista.IAdministradorC; 
 
+import com.IS.marisqueria3.model.MTablas.DatosTablaInventario;
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.model.MTablas.TMInventario;
 import com.IS.marisqueria3.services.ProductoService;
@@ -24,7 +25,7 @@ public class PanelInventario extends javax.swing.JPanel {
       
     private TMInventario tablaIngrediente;
     private ProductoService productoS;
-    private List<DatosTablaInventario1> datosI;
+    private List<DatosTablaInventario> datosI;
     
     public PanelInventario() {
         productoS = new ProductoService();
@@ -37,7 +38,7 @@ public class PanelInventario extends javax.swing.JPanel {
     List<Ingrediente> ingredientes = productoS.listarIngredientes();
     
     for (Ingrediente i : ingredientes) {
-        datosI.add(new DatosTablaInventario1(i));
+        datosI.add(new DatosTablaInventario(i));
     }
     
     tablaIngrediente = new TMInventario(datosI);

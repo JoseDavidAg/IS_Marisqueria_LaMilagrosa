@@ -7,7 +7,6 @@ package com.IS.marisqueria3.model.MTablas;
 import com.IS.marisqueria3.services.OrdenCompraService;
 import com.IS.marisqueria3.model.Ingrediente;
 import com.IS.marisqueria3.services.ProductoService;
-import com.IS.marisqueria3.vista.IAdministradorC.DatosTablaInventario1;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -18,13 +17,13 @@ import javax.swing.JSpinner;
  * @author ambro
  */
 public class TMInventario extends AbstractTableModel{
-    private List<DatosTablaInventario1> datosIngredientes;
+    private List<DatosTablaInventario> datosIngredientes;
     private OrdenCompraService ordenS;
     private ProductoService productoS;
     private String encabezado[]={"Nombre","Stock mínimo","Stock actual","Unidad M","Precio x Unidad","Ingresar/Merma"};
     private Class clasesC[]={String.class,Integer.class,Integer.class,String.class,Float.class,Integer.class};
     
-    public TMInventario(List<DatosTablaInventario1> mtc){
+    public TMInventario(List<DatosTablaInventario> mtc){
         datosIngredientes=mtc;
         ordenS= new OrdenCompraService();
         productoS= new ProductoService();
@@ -77,7 +76,7 @@ public class TMInventario extends AbstractTableModel{
     
     @Override    
     public void setValueAt(Object dato, int r, int c) {
-        DatosTablaInventario1 datoFila = datosIngredientes.get(r);
+        DatosTablaInventario datoFila = datosIngredientes.get(r);
         Ingrediente ing = datoFila.getT();
         try {
             switch (c) {

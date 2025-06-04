@@ -8,6 +8,7 @@ import com.IS.marisqueria3.util.Alerta;
 import com.IS.marisqueria3.util.GeneradorReportes;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelEditarIngrediente;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelInventario;
+import com.IS.marisqueria3.vista.IAdministradorC.PanelPedidoIngredientes;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelProveedores;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelUsuarios;
 import com.itextpdf.text.DocumentException;
@@ -33,6 +34,7 @@ public class IAdministrador extends javax.swing.JFrame {
     private final PanelInventario panelInventarioIngrediente;
     private final PanelProveedores panelProveedores;
     private final PanelUsuarios panelUsuario;
+    private PanelPedidoIngredientes panelPedido;
     private final ReporteService reporteS;
     private Alerta alerta;
     
@@ -46,10 +48,12 @@ public class IAdministrador extends javax.swing.JFrame {
         panelInventarioIngrediente= new PanelInventario();
         panelUsuario= new PanelUsuarios();
         panelProveedores= new PanelProveedores();
+        panelPedido= new PanelPedidoIngredientes();
         cargarIngredientesInventario();
         cargarIngredientesEditar();
         cargarPanelUsuarios();
         cargarPanelProveedores();
+        cargarPanelPedido();
         new Thread(()-> cargarAlertas()).start();
         
     }
@@ -93,6 +97,13 @@ public class IAdministrador extends javax.swing.JFrame {
                 mostrarDialogoAlertas(alertas);
             });
         }
+    }
+    
+    public void cargarPanelPedido(){
+        panelPedido.setVisible(true);
+        panelPedido.setLocation(0,0);
+        jPanel7.add(panelPedido);
+        repaint();
     }
      
     public void mostrarPanelInventario(){
@@ -198,12 +209,8 @@ public class IAdministrador extends javax.swing.JFrame {
         jDateFin = new com.toedter.calendar.JDateChooser();
         jButton2 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
         jPanel7 = new javax.swing.JPanel();
-        jButton3 = new javax.swing.JButton();
-        jPanel9 = new javax.swing.JPanel();
-        jLabel27 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox<>();
-        jLabel28 = new javax.swing.JLabel();
         inventarioPanel = new javax.swing.JPanel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -633,76 +640,10 @@ public class IAdministrador extends javax.swing.JFrame {
         tabbedOrdenCompra.addTab("Generar reporte venta", jPanel6);
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel7.setLayout(new java.awt.BorderLayout());
+        jScrollPane1.setViewportView(jPanel7);
 
-        jButton3.setText("Descargar PDF");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
-        jPanel9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jPanel9.setForeground(new java.awt.Color(51, 204, 255));
-
-        jLabel27.setText("Selecciona proveedor:");
-
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos los proveedores" }));
-
-        jLabel28.setText("Orden de rebastecimiento");
-
-        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
-        jPanel9.setLayout(jPanel9Layout);
-        jPanel9Layout.setHorizontalGroup(
-            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGap(276, 276, 276)
-                        .addComponent(jLabel28))
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addComponent(jLabel27)
-                        .addGap(36, 36, 36)
-                        .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(54, Short.MAX_VALUE))
-        );
-        jPanel9Layout.setVerticalGroup(
-            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addComponent(jLabel28)
-                        .addGap(43, 43, 43)
-                        .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel27))
-                .addContainerGap(94, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(137, 137, 137)
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(384, 384, 384))
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(78, 78, 78)
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(56, 56, 56)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(42, Short.MAX_VALUE))
-        );
-
-        tabbedOrdenCompra.addTab("Generar orden de compra", jPanel7);
+        tabbedOrdenCompra.addTab("Generar reporte rebastecimiento", jScrollPane1);
 
         javax.swing.GroupLayout reportesPanelLayout = new javax.swing.GroupLayout(reportesPanel);
         reportesPanel.setLayout(reportesPanelLayout);
@@ -745,10 +686,6 @@ public class IAdministrador extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        
-    }//GEN-LAST:event_jButton3ActionPerformed
     
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         Date di = jDateInicio.getDate();
@@ -869,12 +806,10 @@ public class IAdministrador extends javax.swing.JFrame {
     private javax.swing.JPanel inventarioPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JComboBox<String> jComboBox11;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
-    private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JComboBox<String> jComboBox6;
     private javax.swing.JComboBox<String> jComboBox7;
     private com.toedter.calendar.JDateChooser jDateChooser1;
@@ -892,8 +827,6 @@ public class IAdministrador extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
-    private javax.swing.JLabel jLabel27;
-    private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel38;
@@ -903,7 +836,7 @@ public class IAdministrador extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
-    private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;

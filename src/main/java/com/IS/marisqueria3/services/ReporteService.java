@@ -5,19 +5,15 @@
 package com.IS.marisqueria3.services;
 
 import com.IS.marisqueria3.model.MTablas.ReporteVentas;
+import com.IS.marisqueria3.util.OrdenCompraP;
 import com.IS.marisqueria3.util.Alerta;
-import java.awt.BorderLayout;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -79,6 +75,34 @@ public class ReporteService implements Serializable {
         return em.createQuery(jpql, Alerta.class)
                 .getResultList();      
     }
+    
+    
+    public List<OrdenCompraP> generarReportePedido() {
+        EntityManager em = getEntityManager();
+        try {
+
+
+            // Consulta JPQL corregida
+            String jpql = "SELECT new com.IS.marisqueria3.util.OrdenCompraP("
+                        + "p.nombre, p.telefono, p.email, i.nombre, "
+                        + "i.descripcion,i.stockMinimo, i.stockDisponible,i.unidadMedida) "
+                        + "FROM Ingrediente i "
+                        + "JOIN i.proveedorId p "
+                        + "order by (i.stockDisponible-i.stockMinimo)";
+            return em.createQuery(jpql, OrdenCompraP.class)
+                    .getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generando reporte de compra: " + e.getMessage(), e);
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
+    }
+    
+    
+    
+    
 
     
     
