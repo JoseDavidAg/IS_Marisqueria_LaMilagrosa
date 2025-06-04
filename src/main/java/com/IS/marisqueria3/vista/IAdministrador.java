@@ -3,21 +3,32 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.IS.marisqueria3.vista;
+import com.IS.marisqueria3.services.ReporteService;
+import com.IS.marisqueria3.util.GeneradorReportes;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelEditarIngrediente;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelInventario;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelProveedores;
 import com.IS.marisqueria3.vista.IAdministradorC.PanelUsuarios;
+import com.itextpdf.text.DocumentException;
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class IAdministrador extends javax.swing.JFrame {
     private final PanelEditarIngrediente panelEIngrediente;
     private final PanelInventario panelInventarioIngrediente;
     private final PanelProveedores panelProveedores;
     private final PanelUsuarios panelUsuario;
+    private final ReporteService reporteS;
+    
+    
     //ingredientes GUI
     
 
     public IAdministrador() {
-
+        reporteS= new ReporteService();
         initComponents();
         panelEIngrediente= new PanelEditarIngrediente();
         panelInventarioIngrediente= new PanelInventario();
@@ -120,8 +131,8 @@ public class IAdministrador extends javax.swing.JFrame {
         jLabel24 = new javax.swing.JLabel();
         jComboBox4 = new javax.swing.JComboBox<>();
         jLabel18 = new javax.swing.JLabel();
-        jDateChooser3 = new com.toedter.calendar.JDateChooser();
-        jDateChooser4 = new com.toedter.calendar.JDateChooser();
+        jDateInicio = new com.toedter.calendar.JDateChooser();
+        jDateFin = new com.toedter.calendar.JDateChooser();
         jButton2 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
@@ -479,8 +490,8 @@ public class IAdministrador extends javax.swing.JFrame {
                             .addComponent(jLabel24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(28, 28, 28)
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jDateChooser3, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jDateChooser4, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jDateInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jDateFin, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGap(276, 276, 276)
@@ -502,9 +513,9 @@ public class IAdministrador extends javax.swing.JFrame {
                             .addGroup(jPanel8Layout.createSequentialGroup()
                                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(jLabel22)
-                                    .addComponent(jDateChooser3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jDateInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(19, 19, 19)
-                                .addComponent(jDateChooser4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jDateFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel23))
                         .addGap(40, 40, 40)))
                 .addContainerGap(39, Short.MAX_VALUE))
@@ -696,9 +707,21 @@ public class IAdministrador extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
-
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        Date di = jDateInicio.getDate();
+        Date df = jDateFin.getDate();
+        String nombre= "Reporte de Ventas Marisqueria \" La Pesca Milagrosa\" ";
+        if (di != null && df != null) {
+       
+            try {
+                GeneradorReportes.generarPDF(reporteS.generarReporteVentas(di, df),"C:/ITO/ReporteMR.pdf",nombre,"David",di,df);
+            } catch (DocumentException | IOException ex) {
+                Logger.getLogger(IAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione ambas fechas.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void limpiar3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiar3ActionPerformed
@@ -743,7 +766,19 @@ public class IAdministrador extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        Date di = jDateInicio.getDate();
+        Date df = jDateFin.getDate();
+        String nombre= "Reporte de Ventas Marisqueria \" La Pesca Milagrosa\" ";
+        if (di != null && df != null) {
+       
+            try {
+                GeneradorReportes.generarExcel(reporteS.generarReporteVentas(di, df),"C:/ITO/ReporteMR.xls",nombre,"David",di,df);
+            } catch (IOException ex) {
+                Logger.getLogger(IAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione ambas fechas.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
@@ -802,8 +837,8 @@ public class IAdministrador extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jComboBox7;
     private com.toedter.calendar.JDateChooser jDateChooser1;
     private com.toedter.calendar.JDateChooser jDateChooser2;
-    private com.toedter.calendar.JDateChooser jDateChooser3;
-    private com.toedter.calendar.JDateChooser jDateChooser4;
+    private com.toedter.calendar.JDateChooser jDateFin;
+    private com.toedter.calendar.JDateChooser jDateInicio;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
